@@ -78,21 +78,32 @@ export class WaterShader {
 
                 // Fresnel effect for sky reflections
                 float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
-                fresnel = clamp(fresnel, 0.0, 0.5);
+                //fresnel = clamp(fresnel, 0.0, 0.5);
 
                 vec3 deepColor = vec3(0.0, 0.1, 0.3);
                 vec3 shallowColor = vec3(0.1, 0.5, 0.7);
                 vec3 waterColor = mix(deepColor, shallowColor, (vElevation + 0.5));
 
                 vec3 skyColor = vec3(0.2, 0.5, 0.7);
-                waterColor = mix(waterColor, skyColor, fresnel);
 
                 vec3 lightDir = normalize(vec3(0.0, 10.0, 5.0)); // Matches your sun position
                 vec3 halfDir = normalize(lightDir + viewDir);
-                float specular = pow(max(dot(normal, halfDir), 0.0), 64.0);
-                waterColor += vec3(1.0, 0.95, 0.8) * specular * 0.6;
 
-                gl_FragColor = vec4(waterColor, 0.9);
+                float ndotl = max(dot(normal, lightDir), 0.0);
+                float ndoth = max(dot(normal, halfDir), 0.0);
+
+                vec3 ka = vec3(0.03, 0.06, 0.09);
+                vec3 kd = vec3(0.18, 0.38, 0.55);
+                vec3 ks = vec3(1.0, 0.95, 0.8);
+
+                vec3 ambient = ka * waterColor;
+                vec3 diffuse = kd * ndotl * waterColor;
+                vec3 specular = ks * pow(ndoth, 128.0) * 0.8;
+
+                vec3 litWaterColor = ambient + diffuse + specular;
+                vec3 finalColor = mix(litWaterColor, skyColor, fresnel * 0.7);
+
+                gl_FragColor = vec4(finalColor, 0.9);
 
                 #include <fog_fragment>
             }
