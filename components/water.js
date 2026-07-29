@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { WaterShader } from '../shaders/water_shader.js';
 
 export class Water {
-    constructor(scene) {
+    constructor(scene, waterlevel = 60) {
         const waterShader = new WaterShader();
 
         const waterGeometry = new THREE.PlaneGeometry(500, 500, 128, 128);
@@ -25,9 +25,11 @@ export class Water {
         side: THREE.DoubleSide
         });
 
+        this.waterLevel = waterlevel;
+
         this.mesh = new THREE.Mesh(waterGeometry, waterMaterial);
         
-        this.mesh.position.y = 60; // Water surface height
+        this.mesh.position.y = this.waterLevel; // Water surface height
 
         scene.add(this.mesh);
     }
