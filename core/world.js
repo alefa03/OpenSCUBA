@@ -4,6 +4,7 @@ import { Seabed } from '../components/seabed.js';
 import { Water } from '../components/water.js';
 import { Controls } from './controls.js'
 import { AudioManager } from '../utils/audio_manager.js';
+import { ScubaDiver } from '../components/scubadiver.js';
 import { Sun } from '../components/sun.js';
 
 
@@ -50,6 +51,7 @@ export class World {
         this.seabed = new Seabed(this.scene);
         this.water = new Water(this.scene);
         this.sun = new Sun(this.scene);
+        this.scubadiver = new ScubaDiver(this.scene);
         
         // Lighting setup
         this.scene.add(this.ambientLight);
@@ -85,6 +87,7 @@ export class World {
         this.seabed.update(timestamp);
         this.water.update(timestamp);
         const daylightFactor = this.sun.update(timeOfDay);
+        this.scubadiver.update(delta);
 
         this.ambientLight.intensity = THREE.MathUtils.lerp(0.2, 1.0, daylightFactor);
         this.currentClearColor.copy(this.nightClearColor).lerp(this.dayClearColor, daylightFactor);
