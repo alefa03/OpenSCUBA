@@ -4,7 +4,7 @@ import { TextureLoader } from '../utils/texture_loader.js';
 
 export class Seabed {
     constructor(scene) {
-        const seabed = new THREE.PlaneGeometry(500, 500, 128, 128);
+        const seabed = new THREE.PlaneGeometry(800, 800, 128, 128);
         seabed.rotateX(-Math.PI / 2);
 
         // creates a wavy effect on the seabed, making it more realistic.

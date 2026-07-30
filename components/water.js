@@ -5,7 +5,7 @@ export class Water {
     constructor(scene, waterlevel = 60) {
         const waterShader = new WaterShader();
 
-        const waterGeometry = new THREE.PlaneGeometry(500, 500, 128, 128);
+        const waterGeometry = new THREE.PlaneGeometry(800, 800, 128, 128);
         waterGeometry.rotateX(-Math.PI / 2);
 
         
