@@ -51,7 +51,7 @@ export class World {
         this.seabed = new Seabed(this.scene);
         this.water = new Water(this.scene);
         this.sun = new Sun(this.scene);
-        this.scubadiver = new ScubaDiver(this.scene);
+        this.scubadiver = new ScubaDiver(this.scene, this.camera, this.controls);
         
         // Lighting setup
         this.scene.add(this.ambientLight);
