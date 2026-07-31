@@ -4,7 +4,7 @@ export class Controls {
   constructor(camera) {
     this.camera = camera;
     
-    this.speed = 12.0;      // Forward movement velocity (units per second)
+    this.speed = 8.0;      // Forward movement velocity (units per second)
     this.turnSpeed = 1.5;   // Maximum rotation speed (radians per second)
     this.deadzone = 0.15;   // Center deadzone threshold (0.15 = inner 15% of screen is idle)
 

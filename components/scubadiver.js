@@ -117,7 +117,7 @@ export class ScubaDiver {
         this.swimBlend = THREE.MathUtils.lerp(this.swimBlend, swimTarget, blendFactor);
         const swimBlend = this.swimBlend; // 'swimBlend' is used to ensure a smooth transition between the 'idle' and the 'swimming' animations, making the movements look more natural.
 
-        const speed = this.controls.isMovingForward ? 3.2 : 2.2;
+        const speed = this.controls.isMovingForward ? 0.4*this.controls.speed : 2.2;
         const rest = this.restRotation;
 
         const swing = Math.sin(this.elapsed * speed);
