@@ -1,6 +1,5 @@
-import { sqrt } from 'three/tsl';
-import { ModelLoader } from '../utils/model_loader.js';
 import * as THREE from 'three';
+import { ModelLoader } from '../utils/model_loader.js';
 
 export class ScubaDiver {
     constructor(scene, camera, controls) {

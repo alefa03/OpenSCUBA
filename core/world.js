@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Tweener } from '../utils/tweener.js';
 import { Seabed } from '../components/seabed.js';
 import { Water } from '../components/water.js';
 import { Controls } from './controls.js'
