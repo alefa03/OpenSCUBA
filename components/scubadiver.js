@@ -12,6 +12,7 @@ export class ScubaDiver {
         this.swimBlend = 0;
         this.camera = camera;
         this.controls = controls;
+        this.localOffset = new THREE.Vector3(0, -3, -3.5);
 
         this.init();
     }
@@ -22,6 +23,18 @@ export class ScubaDiver {
 
         model.scale.multiplyScalar(0.5);
         model.rotation.order = 'YXZ';
+
+        for (const flashlightName of ['Object_22', 'Object_23']) {
+            const flashlight = model.getObjectByName(flashlightName);
+            if (flashlight) flashlight.visible = false;
+        }
+
+        model.traverse((obj) => {
+            if (obj.isMesh || obj.isSkinnedMesh) {
+                obj.castShadow = true;
+                obj.receiveShadow = false;
+            }
+        });
 
         this.scene.add(model);
         this.model = model;
@@ -70,8 +83,7 @@ export class ScubaDiver {
         if (!this.bones || !this.restRotation) return;
 
         if (this.camera) { // If a valid camera object was passed to the class constructor, the model gets attached to its frame.
-            const localOffset = new THREE.Vector3(0, -3, -3.5);
-            const worldOffset = localOffset.clone().applyQuaternion(this.camera.quaternion);
+            const worldOffset = this.localOffset.clone().applyQuaternion(this.camera.quaternion);
             this.model.position.copy(this.camera.position).add(worldOffset);
 
             const cameraEuler = new THREE.Euler().setFromQuaternion(this.camera.quaternion, 'YXZ');
@@ -106,7 +118,7 @@ export class ScubaDiver {
         this.swimBlend = THREE.MathUtils.lerp(this.swimBlend, swimTarget, blendFactor);
         const swimBlend = this.swimBlend; // 'swimBlend' is used to ensure a smooth transition between the 'idle' and the 'swimming' animations, making the movements look more natural.
 
-        const speed = 2.2;
+        const speed = this.controls.isMovingForward ? 3.2 : 2.2;
         const rest = this.restRotation;
 
         const swing = Math.sin(this.elapsed * speed);

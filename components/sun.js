@@ -5,7 +5,15 @@ export class Sun {
         const sunGeometry = new THREE.SphereGeometry(10, 20, 20);
         const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xF5E827 });
         this.sunLight = new THREE.DirectionalLight(0xF5E827, 1.2);
-        this.sunLight.castShadow = false;
+        this.sunLight.castShadow = true;
+        this.sunLight.shadow.mapSize.set(2048, 2048);
+        this.sunLight.shadow.camera.near = 1;
+        this.sunLight.shadow.camera.far = 350;
+        this.sunLight.shadow.camera.left = -180;
+        this.sunLight.shadow.camera.right = 180;
+        this.sunLight.shadow.camera.top = 180;
+        this.sunLight.shadow.camera.bottom = -180;
+        this.sunLight.shadow.bias = -0.0005;
         this.tempVector = new THREE.Vector3();
 
         this.sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);

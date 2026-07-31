@@ -29,12 +29,13 @@ export class Seabed {
             map: TextureLoader.load_texture('../textures/Texturelabs_Soil_126XL.jpg', 40)
         });
 
-        const mesh = new THREE.Mesh(seabed, this.material);
+        this.mesh = new THREE.Mesh(seabed, this.material);
+        this.mesh.receiveShadow = true;
 
-        scene.add(mesh);
+        scene.add(this.mesh);
     }
 
-    update(time) { // Handles seabed animation
-        //this.mesh.rotation.y += 0.01;
-  }
+    update(time) {
+        
+    }
 }
