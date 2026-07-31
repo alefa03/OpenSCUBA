@@ -9,16 +9,20 @@ export class ModelLoader {
 
     loadModel(url) { // Loads a model and returns both the mesh and its animations
         return new Promise((resolve, reject) => {
+            const fileName = url.split('/').pop().split('?')[0].split('#')[0];
+
             this.loader.load(
                 url,
                 (gltf) => {
+                    console.log(`3D Model "${fileName}" loaded!`);
+
                     resolve({
                         model: gltf.scene, // 3D group/mesh
                         animations: gltf.animations // array of animation clips
                     });
                 },
                 (xhr) => {
-                    console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`); // Tracks loading progress
+                    //console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`); // Tracks loading progress
                 },
                 (error) => {
                     console.error(`Failed to load model from ${url}`, error);
