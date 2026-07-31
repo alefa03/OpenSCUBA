@@ -61,6 +61,10 @@ export class Controls {
       }
     });
 
+    window.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+    });
+
     window.addEventListener('resize', () => { // Reset mouse offset if window resizes
       this.mouse.x = 0;
       this.mouse.y = 0;
