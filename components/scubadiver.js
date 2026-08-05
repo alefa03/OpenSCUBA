@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { ModelLoader } from '../utils/model_loader.js';
 
 export class ScubaDiver {
-    constructor(scene, camera, controls) {
+    constructor(scene, camera, controls, audioManager = null) {
         this.scene = scene;
         this.model = null;
         this.bones = null;
@@ -11,7 +11,11 @@ export class ScubaDiver {
         this.swimBlend = 0;
         this.camera = camera;
         this.controls = controls;
+        this.audioManager = audioManager;
         this.localOffset = new THREE.Vector3(0, -3, -3.5);
+        this.collisionOffset = new THREE.Vector3(1, 1, 1);
+        this.lastSafeCameraPosition = new THREE.Vector3();
+        this.hasSafePosition = false;
 
         this.init();
     }
@@ -63,6 +67,11 @@ export class ScubaDiver {
             finR2:  model.getObjectByName('mixamorigRightToeBase_60')
         };
 
+        if (this.audioManager && this.bones.head) {
+            await this.audioManager.load('scuba_bubbles', '../sounds/scuba_bubbles.mp3', true, 0.06, true, this.bones.head);
+            this.audioManager.play('scuba_bubbles');
+        }
+
         for (const bone of skeleton.bones) {
             const rest = getBindPoseEuler(bone, skeleton);
             bone.rotation.set(rest.x, rest.y, rest.z);
@@ -80,6 +89,20 @@ export class ScubaDiver {
 
     update(deltaTime) {
         if (!this.bones || !this.restRotation) return;
+
+        if (!this.hasSafePosition) {
+            this.lastSafeCameraPosition.copy(this.camera.position);
+            this.hasSafePosition = true;
+        }
+
+        const previousCameraPosition = this.lastSafeCameraPosition.clone();
+        const diverCollisionPosition = this.getCollisionPosition();
+
+        if (this.isCollidingWithCreature(diverCollisionPosition)) {
+            this.camera.position.copy(previousCameraPosition);
+        }
+
+        this.lastSafeCameraPosition.copy(this.camera.position);
 
         if (this.camera) { // If a valid camera object was passed to the class constructor, the model gets attached to its frame.
             const worldOffset = this.localOffset.clone().applyQuaternion(this.camera.quaternion);
@@ -190,6 +213,37 @@ export class ScubaDiver {
         const idleFinR2X = rest.finR2.x + bend * 0.05;
         const swimFinR2X = rest.finR2.x + bend * 0.2;
         lerpRotation(this.bones.finR2, 'x', idleFinR2X, swimFinR2X);
+    }
+
+    getCollisionPosition() {
+        return this.camera.position.clone().add(
+            this.localOffset.clone().applyQuaternion(this.camera.quaternion)
+        );
+    }
+
+    isCollidingWithCreature(position) {
+        let isColliding = false;
+
+        this.scene.traverse((object) => {
+            if (!object.userData?.canCollide || !object.isObject3D) return;
+
+            object.updateMatrixWorld(true);
+            const box = new THREE.Box3().setFromObject(object);
+            const boxCenter = box.getCenter(new THREE.Vector3());
+            const boxHalfSize = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
+            const min = boxCenter.clone().sub(boxHalfSize).sub(this.collisionOffset);
+            const max = boxCenter.clone().add(boxHalfSize).add(this.collisionOffset);
+
+            const isInsideX = position.x >= min.x && position.x <= max.x;
+            const isInsideY = position.y >= min.y && position.y <= max.y;
+            const isInsideZ = position.z >= min.z && position.z <= max.z;
+
+            if (isInsideX && isInsideY && isInsideZ) {
+                isColliding = true;
+            }
+        });
+
+        return isColliding;
     }
 }
 
