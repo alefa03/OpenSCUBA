@@ -7,6 +7,12 @@ import { ScubaDiver } from '../components/scubadiver.js';
 import { Sun } from '../components/sun.js';
 import { Vector3 } from 'three/webgpu';
 import { fog } from 'three/tsl';
+import { EmperorAngelfish } from '../components/creatures/emperorangelfish.js';
+import { CoralFish } from '../components/creatures/coralfish.js';
+import { WhaleShark } from '../components/creatures/whaleshark.js';
+import { MantaRay } from '../components/creatures/mantaray.js';
+import { KillerWhale } from '../components/creatures/killerwhale.js';
+import { CreatureWrapper } from '../utils/creature_wrapper.js';
 
 
 export class World {
@@ -54,7 +60,12 @@ export class World {
         this.seabed = new Seabed(this.scene);
         this.water = new Water(this.scene);
         this.sun = new Sun(this.scene);
-        this.scubadiver = new ScubaDiver(this.scene, this.camera, this.controls);
+        this.scubadiver = new ScubaDiver(this.scene, this.camera, this.controls, this.audioManager);
+        this.angelfishes = new CreatureWrapper(this.scene, EmperorAngelfish, 30, { center: new THREE.Vector3(0, 8, 0), radius: 8 }, 3, Math.PI);
+        this.coralfishes = new CreatureWrapper(this.scene, CoralFish, 40, { center: new THREE.Vector3(40, 8, 40), radius: 10 }, 0.00005, -Math.PI/2);//new CreatureWrapper(this.scene, CoralFish, 30, null, 0);
+        this.whaleshark = new WhaleShark(this.scene, {scale:10, forwardOffset: Math.PI/2, canCollide: true});
+        this.mantaray = new MantaRay(this.scene, {forwardOffset: Math.PI/2, swimSpeed: 1.7, canCollide: true});
+        this.killerwhale = new KillerWhale(this.scene, {scale: 0.01, forwardOffset: Math.PI/2, canCollide: true});
         
         // Lighting setup
         this.scene.add(this.ambientLight);
@@ -91,6 +102,11 @@ export class World {
         this.controls.update(delta);
         resolveEnvironmentCollisions(this.camera, this.seabed.mesh, this.water.waterLevel,  this.scubadiver.localOffset);
         this.scubadiver.update(delta);
+        this.angelfishes.update(delta);
+        this.coralfishes.update(delta);
+        this.whaleshark.update(delta);
+        this.mantaray.update(delta);
+        this.killerwhale.update(delta);
 
         this.ambientLight.intensity = THREE.MathUtils.lerp(0.2, 1.0, daylightFactor);
         this.currentClearColor.copy(this.nightClearColor).lerp(this.dayClearColor, daylightFactor);
@@ -102,11 +118,11 @@ export class World {
 
         if (this.camera.position.y > this.water.waterLevel) {
             clearColorToUse = brightClearColor;
-            fogToUse = {near: 80, far: 200};
+            fogToUse = {near: 100, far: 200};
         } else if (this.camera.position.y > this.water.waterLevel - surfaceThreshold) {
             const fadeFactor = (this.camera.position.y - (this.water.waterLevel - surfaceThreshold)) / surfaceThreshold;
             clearColorToUse = this.currentClearColor.clone().lerp(brightClearColor, fadeFactor);
-            fogToUse = { near: THREE.MathUtils.lerp(10, 80, fadeFactor), far: THREE.MathUtils.lerp(100, 180, fadeFactor)};
+            fogToUse = { near: THREE.MathUtils.lerp(40, 150, fadeFactor), far: THREE.MathUtils.lerp(100, 200, fadeFactor)};
         }
 
         this.renderer.setClearColor(clearColorToUse);
