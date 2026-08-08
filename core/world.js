@@ -166,14 +166,14 @@ export class World {
             canCollide: true },
         
             // fan_coral_med
-            { path: '../assets/scenery/corals/fan_coral_med.glb', scale: 60.3296,
+            { path: '../assets/scenery/corals/fan_coral_med_materialfix.glb', scale: 60.3296,
             position: new THREE.Vector3(26.275, 1, 10), rotation: new THREE.Vector3(0.0137, 3.5797, -0.12),
             canCollide: false },
-            { path: '../assets/scenery/corals/fan_coral_med.glb', scale: 40.33232,
+            { path: '../assets/scenery/corals/fan_coral_med_materialfix.glb', scale: 40.33232,
             position: new THREE.Vector3(-26, 0.3, -24), rotation: new THREE.Vector3(-0.12, 3.4704, 0.12),
             canCollide: false },
-            { path: '../assets/scenery/corals/fan_coral_med.glb', scale: 50.25419,
-            position: new THREE.Vector3(-9.178, 1.433, -16.87), rotation: new THREE.Vector3(0.0346, 0.2391, -0.0896),
+            { path: '../assets/scenery/corals/fan_coral_med_materialfix.glb', scale: 50.25419,
+            position: new THREE.Vector3(-9.178, 1.9, -16.87), rotation: new THREE.Vector3(0.0346, 0.2391, -0.0896),
             canCollide: false },
         
             // spined_sea_coral
