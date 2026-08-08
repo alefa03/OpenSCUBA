@@ -3,6 +3,7 @@ import { Seabed } from '../components/seabed.js';
 import { Water } from '../components/water.js';
 import { Controls } from './controls.js'
 import { AudioManager } from '../utils/audio_manager.js';
+import { Tweener } from '../utils/tweener.js';
 import { ScubaDiver } from '../components/scubadiver.js';
 import { Sun } from '../components/sun.js';
 import { EmperorAngelfish } from '../components/creatures/emperorangelfish.js';
@@ -18,7 +19,7 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-THREE.Mesh.prototype.raycast = acceleratedRaycast; // also speeds up your seabed raycast for free
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 
 export class World {
@@ -410,13 +411,25 @@ export class World {
 
         // Background sounds setup
         this.audioManager.load('underwater_ambience', '../sounds/underwater.mp3', true, 0.5)
-            .then(() => {
-                this.audioManager.play('underwater_ambience');
-            })
+            .catch((error) => {
+                console.error('Error loading background audio:', error);
+            });
+        
+        this.audioManager.load('deep_ocean_dream', '../sounds/deep_ocean_dream.mp3', false, 1)
             .catch((error) => {
                 console.error('Error loading background audio:', error);
             });
 
+
+    }
+
+    enterWorld() {
+        this.controls.enabled = true;
+        this.scubadiver.playSplashSound();
+        this.audioManager.play('underwater_ambience');
+        this.scubadiver.playBreathingSound();
+
+        setTimeout(() => this.audioManager.play('deep_ocean_dream'), 1200); // plays world music
     }
 
     start() {
@@ -427,6 +440,7 @@ export class World {
 
     render(timestamp) {
         this.timer.update(timestamp);
+        Tweener.update(timestamp);
         const delta = this.timer.getDelta();
         const elapsed = this.timer.getElapsed();
         const dayDuration = 120;

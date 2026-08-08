@@ -69,9 +69,11 @@ export class ScubaDiver {
             finR2:  model.getObjectByName('mixamorigRightToeBase_60')
         };
 
-        if (this.audioManager && this.bones.head) {
-            await this.audioManager.load('scuba_bubbles', '../sounds/scuba_bubbles.mp3', true, 0.06, true, this.bones.head);
-            this.audioManager.play('scuba_bubbles');
+        if (this.audioManager) {
+            await this.audioManager.load('splash', '../sounds/splash.mp3', false, 0.8);
+            if (this.bones.head) {
+                await this.audioManager.load('scuba_bubbles', '../sounds/scuba_bubbles.mp3', true, 0.06, true, this.bones.head);
+            }
         }
 
         for (const bone of skeleton.bones) {
@@ -281,6 +283,14 @@ export class ScubaDiver {
         });
 
         return result;
+    }
+
+    playSplashSound() {
+        this.audioManager.play('splash');
+    }
+
+    playBreathingSound() {
+        this.audioManager.play('scuba_bubbles');
     }
 }
 

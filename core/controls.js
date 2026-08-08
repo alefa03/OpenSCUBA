@@ -3,7 +3,9 @@ import * as THREE from 'three';
 export class Controls {
   constructor(camera) {
     this.camera = camera;
-    
+
+    this.enabled = false;  // Movement/rotation stay off until the UI play button enables them
+
     this.speed = 8.0;      // Forward movement velocity (units per second)
     this.turnSpeed = 1.5;   // Maximum rotation speed (radians per second)
     this.deadzone = 0.15;   // Center deadzone threshold (0.15 = inner 15% of screen is idle)
@@ -72,6 +74,10 @@ export class Controls {
   }
 
   update(delta) {
+    if (!this.enabled) {
+      return; // Skip everything until the UI overlay enables controls (Play button clicked)
+    }
+
     if (!this.isCursorInView) {
       return; // Skip rotation and movement calculations if the cursor is outside the window or the window is not focused
     }
