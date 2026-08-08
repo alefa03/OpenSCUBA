@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ModelLoader } from '../utils/model_loader.js';
+import { Vector3 } from 'three';
 
 export class ScubaDiver {
     constructor(scene, camera, controls, audioManager = null) {
@@ -13,7 +14,8 @@ export class ScubaDiver {
         this.controls = controls;
         this.audioManager = audioManager;
         this.localOffset = new THREE.Vector3(0, -3, -3.5);
-        this.collisionOffset = new THREE.Vector3(1, 1, 1);
+        this.collisionOffset = new THREE.Vector3(0.15, 0.15, 0.15);
+        this.diverRadius = 0.6; // sphere radius used for scenery push-out collision
         this.lastSafeCameraPosition = new THREE.Vector3();
         this.hasSafePosition = false;
 
@@ -88,18 +90,20 @@ export class ScubaDiver {
     }
 
     update(deltaTime) {
-        if (!this.bones || !this.restRotation) return;
+       if (!this.bones || !this.restRotation) return;
 
         if (!this.hasSafePosition) {
             this.lastSafeCameraPosition.copy(this.camera.position);
             this.hasSafePosition = true;
         }
 
-        const previousCameraPosition = this.lastSafeCameraPosition.clone();
         const diverCollisionPosition = this.getCollisionPosition();
 
         if (this.isCollidingWithCreature(diverCollisionPosition)) {
-            this.camera.position.copy(previousCameraPosition);
+            this.camera.position.copy(this.lastSafeCameraPosition);
+        } else {
+            const resolved = this.resolveSceneryPushback(diverCollisionPosition);
+            this.camera.position.add(resolved.clone().sub(diverCollisionPosition));
         }
 
         this.lastSafeCameraPosition.copy(this.camera.position);
@@ -225,7 +229,7 @@ export class ScubaDiver {
         let isColliding = false;
 
         this.scene.traverse((object) => {
-            if (!object.userData?.canCollide || !object.isObject3D) return;
+            if (!object.userData?.canCollide || object.userData?.isScenery || !(object.isMesh || object.isSkinnedMesh)) return;
 
             object.updateMatrixWorld(true);
             const box = new THREE.Box3().setFromObject(object);
@@ -244,6 +248,39 @@ export class ScubaDiver {
         });
 
         return isColliding;
+    }
+    
+    resolveSceneryPushback(desiredPosition) {
+        const result = desiredPosition.clone();
+
+        if (typeof this.diverRadius !== 'number' || Number.isNaN(this.diverRadius)) {
+            console.warn('ScubaDiver: diverRadius is not set! Scenery collision is disabled.');
+            return result;
+        }
+
+        this.scene.traverse((object) => {
+            if (!object.userData?.isCollidable || !object.geometry?.boundsTree) return;
+
+            object.updateMatrixWorld(true);
+
+            const worldScale = object.getWorldScale(new THREE.Vector3()).x;
+            const localRadius = this.diverRadius / worldScale;
+
+            const localPos = result.clone().applyMatrix4(object.matrixWorld.clone().invert());
+            const hit = object.geometry.boundsTree.closestPointToPoint(localPos, {}, 0, localRadius);
+            if (!hit || !hit.point) return;
+
+            const worldHitPoint = hit.point.clone().applyMatrix4(object.matrixWorld);
+            const away = result.clone().sub(worldHitPoint);
+            const dist = away.length();
+
+            if (dist < this.diverRadius) {
+                const pushDir = dist > 1e-5 ? away.normalize() : new THREE.Vector3(0, 1, 0);
+                result.add(pushDir.multiplyScalar(this.diverRadius - dist));
+            }
+        });
+
+        return result;
     }
 }
 

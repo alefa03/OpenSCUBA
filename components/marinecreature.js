@@ -134,6 +134,8 @@ export class LargeMarineCreature extends MarineCreature {
         }
 
         super(scene, options);
+
+        this.canCollide = options.canCollide ?? true;
     }
 
     async init() {

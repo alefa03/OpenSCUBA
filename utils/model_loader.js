@@ -1,10 +1,12 @@
 // src/utils/ModelLoader.js
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 export class ModelLoader {
     constructor() {
         this.loader = new GLTFLoader();
+        this.loader.setMeshoptDecoder(MeshoptDecoder);
     }
 
     loadModel(url) { // Loads a model and returns both the mesh and its animations

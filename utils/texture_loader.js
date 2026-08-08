@@ -18,8 +18,10 @@ export class TextureLoader {
                 console.error('An error happened loading the texture "' + textureName + '":', error);
             }
         );
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
+        
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.wrapS = THREE.MirroredRepeatWrapping;
+        texture.wrapT = THREE.MirroredRepeatWrapping;
         texture.repeat.set(repeatVal, repeatVal);
 
         return texture;

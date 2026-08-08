@@ -106,7 +106,7 @@ export class WhaleShark extends LargeMarineCreature {
         const prevX = this.model.position.x;
         const prevZ = this.model.position.z;
 
-        const newPos = this._circularTrajectory(this.swimTime, 140, 0.025);
+        const newPos = this._circularTrajectory(this.swimTime, 100, 0.025);
         this.model.position.set(newPos.x, this.model.position.y, newPos.z);
 
         const dx = this.model.position.x - prevX;
