@@ -4,6 +4,7 @@ import { Water } from '../components/water.js';
 import { Controls } from './controls.js'
 import { AudioManager } from '../utils/audio_manager.js';
 import { Tweener } from '../utils/tweener.js';
+import { GarbageCollector } from '../utils/garbage_collector.js';
 import { ScubaDiver } from '../components/scubadiver.js';
 import { Sun } from '../components/sun.js';
 import { EmperorAngelfish } from '../components/creatures/emperorangelfish.js';
@@ -494,6 +495,18 @@ export class World {
         } */
 
         this.renderer.render(this.scene, this.camera);
+    }
+
+    destroy() { // Correctly disposes the scene, avoiding memory leaks.
+        this.renderer.setAnimationLoop(null);
+
+        GarbageCollector.cleanUpScene(this.scene, this.renderer);
+        
+        if (this.renderer.domElement && this.renderer.domElement.parentNode) {
+            this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+        }
+
+        console.log("World destroyed and WebGL memory cleared.");
     }
 }
 

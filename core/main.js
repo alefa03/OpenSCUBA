@@ -6,3 +6,9 @@ const world = new World(container);
 const loading_ui = new LoadingUI(world);
 
 world.start();
+
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+        myWorld.destroy(); 
+    });
+}
