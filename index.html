@@ -1,167 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="icon" type="image/png" href="./logo_light.png">
-    <title>OpenSCUBA</title>
-    <style>
-      body { 
-        margin: 0; 
-        overflow: hidden; /* Stops unwanted scrollbars */
-      }
-      #scene-container {
-        width: 100vw;
-        height: 100vh;
-        display: block;
+
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" type="image/png" href="./logo_light.png">
+  <title>OpenSCUBA</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      /* Stops unwanted scrollbars */
+    }
+
+    #scene-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    #ui-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #000;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    #ui-overlay.ui-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #ui-content {
+      position: absolute;
+      inset: 0;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    #ui-content.ui-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #ui-logo {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40vw;
+      max-width: 220px;
+      height: auto;
+    }
+
+    #ui-loading-label {
+      position: absolute;
+      top: calc(50% - 50px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 420px;
+      text-align: center;
+      white-space: pre-line;
+      line-height: 1.4;
+      color: rgba(255, 255, 255, 0.7);
+      font: 500 0.85rem sans-serif;
+      letter-spacing: 0.05em;
+      transition: opacity 0.4s ease;
+    }
+
+    #ui-loading-label.ui-hidden {
+      opacity: 0;
+    }
+
+    #ui-progress-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      max-width: 360px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: opacity 0.4s ease;
+    }
+
+    #ui-progress-container.ui-hidden {
+      opacity: 0;
+    }
+
+    #ui-progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #0bd7e6;
+      transition: width 0.2s ease-out;
+    }
+
+    #ui-progress-text {
+      position: absolute;
+      top: calc(50% + 20px);
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      font: 500 0.85rem sans-serif;
+      letter-spacing: 0.05em;
+      transition: opacity 0.4s ease;
+    }
+
+    #ui-progress-text.ui-hidden {
+      opacity: 0;
+    }
+
+    #ui-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 14px 52px;
+      font: 600 1.1rem sans-serif;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: transparent;
+      border: 2px solid #0bd7e6;
+      border-radius: 30px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    #ui-play-button.ui-ready {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #ui-play-button.ui-ready:not(:disabled):hover {
+      transform: translate(-50%, -50%) scale(1.08);
+      border-color: #3de2ff;
+      color: #3de2ff;
+    }
+
+    @keyframes ui-button-pop {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
       }
 
-      #ui-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 10;
-        background: #000;
-        opacity: 1;
-        transition: opacity 1s ease;
+      35% {
+        transform: translate(-50%, -50%) scale(0.9);
       }
 
-      #ui-overlay.ui-hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      #ui-content {
-        position: absolute;
-        inset: 0;
-        opacity: 1;
-        transition: opacity 0.5s ease;
-      }
-
-      #ui-content.ui-hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      #ui-logo {
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40vw;
-        max-width: 220px;
-        height: auto;
-      }
-
-      #ui-progress-container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 50%;
-        max-width: 360px;
-        height: 6px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 3px;
-        overflow: hidden;
-        transition: opacity 0.4s ease;
-      }
-
-      #ui-progress-container.ui-hidden {
-        opacity: 0;
-      }
-
-      #ui-progress-bar {
-        width: 0%;
-        height: 100%;
-        background: #0bd7e6;
-        transition: width 0.2s ease-out;
-      }
-
-      #ui-progress-text {
-        position: absolute;
-        top: calc(50% + 20px);
-        left: 50%;
-        transform: translateX(-50%);
-        color: rgba(255, 255, 255, 0.7);
-        font: 500 0.85rem sans-serif;
-        letter-spacing: 0.05em;
-        transition: opacity 0.4s ease;
-      }
-
-      #ui-progress-text.ui-hidden {
-        opacity: 0;
-      }
-
-      #ui-play-button {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 14px 52px;
-        font: 600 1.1rem sans-serif;
-        letter-spacing: 0.08em;
-        color: #fff;
-        background: transparent;
-        border: 2px solid #0bd7e6;
-        border-radius: 30px;
-        cursor: pointer;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s ease, transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-      }
-
-      #ui-play-button.ui-ready {
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      #ui-play-button.ui-ready:not(:disabled):hover {
+      65% {
         transform: translate(-50%, -50%) scale(1.08);
-        border-color: #3de2ff;
-        color: #3de2ff;
       }
 
-      @keyframes ui-button-pop {
-        0%   { transform: translate(-50%, -50%) scale(1); }
-        35%  { transform: translate(-50%, -50%) scale(0.9); }
-        65%  { transform: translate(-50%, -50%) scale(1.08); }
-        100% { transform: translate(-50%, -50%) scale(1); }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
       }
+    }
 
-      #ui-play-button.ui-clicked {
-        animation: ui-button-pop 0.4s ease;
-      }
+    #ui-play-button.ui-clicked {
+      animation: ui-button-pop 0.4s ease;
+    }
 
-      #ui-bottom-text {
-        position: absolute;
-        bottom: 5%;
-        left: 50%;
-        transform: translateX(-50%);
-        
-        color: rgba(255, 255, 255, 0.7);
-        font: 500 0.85rem sans-serif;
-        letter-spacing: 0.05em;
-        text-align: center;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="scene-container"></div>
+    #ui-bottom-text {
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
 
-    <div id="ui-overlay">
-      <div id="ui-content">
-        <img id="ui-logo" src="./logo_light.png" alt="OpenSCUBA logo">
-        <div id="ui-progress-container">
-          <div id="ui-progress-bar"></div>
-        </div>
-        <button id="ui-play-button" disabled>PLAY</button>
-        <div id="ui-bottom-text">
-          <h3><b>Controls</b></h3>
-          Use the <b>Mouse Cursor</b> to look around.<br>
-          Hold the <b>Left Mouse Button</b> to move.
-        </div>
+      color: rgba(255, 255, 255, 0.7);
+      font: 500 0.85rem sans-serif;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="scene-container"></div>
+
+  <div id="ui-overlay">
+    <div id="ui-content">
+      <img id="ui-logo" src="./logo_light.png" alt="OpenSCUBA logo">
+      <div id="ui-loading-label">Loading assets&hellip;</div>
+      <div id="ui-progress-container">
+        <div id="ui-progress-bar"></div>
+      </div>
+      <div id="ui-progress-text">0%</div>
+      <button id="ui-play-button" disabled>PLAY</button>
+      <div id="ui-bottom-text">
+        <h3><b>Controls</b></h3>
+        Use the <b>Mouse Cursor</b> to look around.<br>
+        Hold the <b>Left Mouse Button</b> to move.
       </div>
     </div>
+  </div>
 
-    <script type="module" src="./core/main.js"></script>
-  </body>
+  <script type="module" src="./core/main.js"></script>
+</body>
+
 </html>

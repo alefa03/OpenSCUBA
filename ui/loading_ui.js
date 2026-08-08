@@ -23,24 +23,32 @@ export class LoadingUI {
 
         this.overlay = document.getElementById('ui-overlay');
         this.content = document.getElementById('ui-content');
+        this.loadingLabel = document.getElementById('ui-loading-label');
         this.progressContainer = document.getElementById('ui-progress-container');
         this.progressBar = document.getElementById('ui-progress-bar');
+        this.progressText = document.getElementById('ui-progress-text');
         this.playButton = document.getElementById('ui-play-button');
 
         this._maxPercent = 0;
         this._ready = false;
         this._started = false;
 
-        this._preloadClickSound();
+        this._preloadUiSounds();
         this._trackLoading();
 
         this.playButton.addEventListener('click', () => this._handlePlay(), { once: true });
     }
 
-    _preloadClickSound() {
+    _preloadUiSounds() {
         this.world.audioManager
             .load(UI_CLICK_SOUND, '../sounds/ui_click.mp3', false, 0.8)
             .catch((error) => console.error('Error loading UI click sound:', error));
+    }
+
+    _describeAsset(url) { // Returns which element is currently being loaded
+        if (!url) return 'Loading assets…';
+        const filename = decodeURIComponent(url.split('/').pop().split('?')[0]);
+        return `Loading assets…\n${filename}`;
     }
 
     _trackLoading() {
@@ -50,8 +58,11 @@ export class LoadingUI {
             const percent = itemsTotal > 0 ? (itemsLoaded / itemsTotal) * 100 : 100;
             this._maxPercent = Math.max(this._maxPercent, percent); // never let the bar visibly backtrack
             this.progressBar.style.width = `${this._maxPercent}%`;
+            this.progressText.textContent = `${Math.round(this._maxPercent)}%`;
+            this.loadingLabel.textContent = "Loading assets..." //this._describeAsset(url);
             this._scheduleReadyCheck();
         };
+
 
         manager.onLoad = () => this._scheduleReadyCheck();
 
@@ -86,7 +97,10 @@ export class LoadingUI {
         clearTimeout(this._readyCheckTimer);
         this._maxPercent = 100;
         this.progressBar.style.width = '100%';
+        this.progressText.textContent = '100%';
         this.progressContainer.classList.add('ui-hidden'); // progress bar fade-out
+        this.progressText.classList.add('ui-hidden');
+        this.loadingLabel.classList.add('ui-hidden');
         this.playButton.disabled = false;
         this.playButton.classList.add('ui-ready'); // button fade-in
     }
