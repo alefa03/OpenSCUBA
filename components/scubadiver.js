@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { ModelLoader } from '../utils/model_loader.js';
-import { Vector3 } from 'three';
 
 export class ScubaDiver {
+    #flashlightdebug = false;
+
     constructor(scene, camera, controls, audioManager = null) {
         this.scene = scene;
         this.model = null;
@@ -19,6 +20,20 @@ export class ScubaDiver {
         this.lastSafeCameraPosition = new THREE.Vector3();
         this.hasSafePosition = false;
 
+        this.flashlight = new THREE.SpotLight(0xfeffb7, 100, 30, Math.PI/3, 0.5, 2);
+        this.flashlight.castShadow = true; // Enable shadow casting for the light
+        this.flashlight.shadow.mapSize.width = 1024;
+        this.flashlight.shadow.mapSize.height = 1024;
+        this.flashlight.shadow.camera.near = 1;
+        this.flashlight.shadow.camera.far = 30; 
+        this.flashlight.shadow.bias = -0.001; // A slight negative bias to help prevent "shadow acne"
+        this.flashlight.visible = false; // Flashlight is off by default
+
+        if (this.#flashlightdebug) {
+            this._spotLightHelper = new THREE.SpotLightHelper(this.flashlight);
+            this.scene.add(this._spotLightHelper);
+        }
+
         this.init();
     }
 
@@ -34,10 +49,15 @@ export class ScubaDiver {
             if (flashlight) flashlight.visible = false;
         }
 
+        this.flashlight.position.set(0, 2, 4);
+        this.flashlight.target.position.set(0, -2, 14);
+        model.add(this.flashlight);
+        model.add(this.flashlight.target);
+
         model.traverse((obj) => {
             if (obj.isMesh || obj.isSkinnedMesh) {
                 obj.castShadow = true;
-                obj.receiveShadow = false;
+                obj.receiveShadow = true;
             }
         });
 
@@ -71,6 +91,7 @@ export class ScubaDiver {
 
         if (this.audioManager) {
             await this.audioManager.load('splash', '../sounds/splash.mp3', false, 0.8);
+            await this.audioManager.load('flashlight_click', '../sounds/flashlight_click.mp3', false, 1);
             if (this.bones.head) {
                 await this.audioManager.load('scuba_bubbles', '../sounds/scuba_bubbles.mp3', true, 0.06, true, this.bones.head);
             }
@@ -89,10 +110,20 @@ export class ScubaDiver {
             }
             this.restRotation[name] = { x: bone.rotation.x, y: bone.rotation.y, z: bone.rotation.z };
         }
+
+        window.addEventListener('keydown', (event) => { // Key listener for 'Flashlight on/off' command
+            if (event.key.toLowerCase() === 'f') {
+                this.flashlight.visible = !this.flashlight.visible;
+                this.audioManager.stop('flashlight_click');
+                this.audioManager.play('flashlight_click');
+            }
+        });
     }
 
     update(deltaTime) {
-       if (!this.bones || !this.restRotation) return;
+        if (!this.bones || !this.restRotation) return;
+
+        if (this.#flashlightdebug && this._spotLightHelper) this._spotLightHelper.update();
 
         if (!this.hasSafePosition) {
             this.lastSafeCameraPosition.copy(this.camera.position);
