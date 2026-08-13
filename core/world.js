@@ -24,11 +24,14 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 
 export class World {
+    #enableworldaxes = false; // set to true to make world frame axes visible
+
     constructor(container) {
         this.timer = new THREE.Timer();
         this.dayClearColor = new THREE.Color(0x006994);
         this.nightClearColor = new THREE.Color(0x03101e);
         this.currentClearColor = new THREE.Color().copy(this.dayClearColor);
+        this.daySkyColor = new THREE.Color(0x3de2ff); // full-brightness above-water color
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -41,7 +44,7 @@ export class World {
 
         this.renderer.setClearColor(this.currentClearColor);
 
-        this.scene.fog = new THREE.Fog(this.currentClearColor, 40, 100);
+        this.scene.fog = new THREE.FogExp2(this.currentClearColor, densityForVisibility(100));
         
         this.ambientLight = new THREE.AmbientLight(0x0bd7e6, 0.2);
 
@@ -381,15 +384,17 @@ export class World {
         this.machinery = new Scenery(this.scene, '../assets/scenery/machinery.glb', 16, new THREE.Vector3(-35,0,120), undefined, true);
         this.machinerybeam = new Beam({
             color: 0x4af9ff,
-            intensity: 100,
+            intensity: 300,
             angle: Math.PI / 8,
             distance: 300,
             radius: 1,
             length: 300,
-            opacity: 0.2,
-            penumbra: 0.2,});
+            opacity: 0.32,
+            penumbra: 0.05,});
         this.machinerybeam.position.set(-35,2,120);
         this.machinerybeam.setDirection(new THREE.Vector3(0,1,0));
+        this.machinerybeam.mesh.material.depthWrite = true;
+        this.water.mesh.renderOrder = 1;
         this.scene.add(this.machinerybeam);
 
         // Creatures
@@ -407,8 +412,10 @@ export class World {
         this.scene.add(this.ambientLight);
 
         // World Frame
-        const axesHelper = new THREE.AxesHelper(5);
-        this.scene.add(axesHelper);
+        if (this.#enableworldaxes) {
+            const axesHelper = new THREE.AxesHelper(5);
+            this.scene.add(axesHelper);
+        }
 
         // Background sounds setup
         this.audioManager.load('underwater_ambience', '../sounds/underwater.mp3', true, 0.5)
@@ -444,8 +451,8 @@ export class World {
         Tweener.update(timestamp);
         const delta = this.timer.getDelta();
         const elapsed = this.timer.getElapsed();
-        const dayDuration = 120;
-        const timeOfDay = (30 % dayDuration) / dayDuration;
+        const dayDuration = 1200;
+        const timeOfDay = ((elapsed+220) % dayDuration) / dayDuration;
 
         this.seabed.update(timestamp);
         this.water.update(timestamp);
@@ -465,34 +472,29 @@ export class World {
         this.killerwhale.update(delta);
 
         this.ambientLight.intensity = THREE.MathUtils.lerp(0.2, 1.0, daylightFactor);
+        this.wreck.setLightLevel(daylightFactor); // fades the tuned emissive tint in with daylight
         this.currentClearColor.copy(this.nightClearColor).lerp(this.dayClearColor, daylightFactor);
 
-        const brightClearColor = this.currentClearColor.clone().lerp(new THREE.Color(0x3de2ff), 0.18);
+        this.machinerybeam.setIntensity(daylightFactor < 0.2 ? 300 : 0);
+        this.machinerybeam.setOpacity(daylightFactor < 0.2 ? 0.5 : 0);
+
+        const brightClearColor = this.nightClearColor.clone().lerp(this.daySkyColor, daylightFactor);
         const surfaceThreshold = 20;
         let clearColorToUse = this.currentClearColor;
-        let fogToUse = {near: this.scene.fog.near, far: this.scene.fog.far};
+        let fogDensity = densityForVisibility(100); // underwater default
 
         if (this.camera.position.y > this.water.waterLevel) {
             clearColorToUse = brightClearColor;
-            fogToUse = {near: 160, far: 220};
+            fogDensity = densityForVisibility(260);
         } else if (this.camera.position.y > this.water.waterLevel - surfaceThreshold) {
             const fadeFactor = (this.camera.position.y - (this.water.waterLevel - surfaceThreshold)) / surfaceThreshold;
             clearColorToUse = this.currentClearColor.clone().lerp(brightClearColor, fadeFactor);
-            fogToUse = { near: THREE.MathUtils.lerp(40, 100, fadeFactor), far: THREE.MathUtils.lerp(160, 220, fadeFactor)};
+            fogDensity = THREE.MathUtils.lerp(densityForVisibility(100), densityForVisibility(260), fadeFactor);
         }
 
         this.renderer.setClearColor(clearColorToUse);
         this.scene.fog.color.copy(clearColorToUse);
-        this.scene.fog.near = fogToUse.near;
-        this.scene.fog.far = fogToUse.far;
-        
-        /* if (this.camera.position.y > this.water.waterLevel) {
-            this.scene.fog.near = 80;
-            this.scene.fog.far = 200;
-        } else {
-            this.scene.fog.near = 10;
-            this.scene.fog.far = 120;
-        } */
+        this.scene.fog.density = fogDensity;
 
         this.renderer.render(this.scene, this.camera);
     }
@@ -508,6 +510,10 @@ export class World {
 
         console.log("World destroyed and WebGL memory cleared.");
     }
+}
+
+function densityForVisibility(distance) { // Utility function to convert a rough "visibility distance" value into a fog density value
+    return 2.146 / distance;
 }
 
 function resolveEnvironmentCollisions(camera, seabedMesh, waterLevel, offset = new THREE.Vector3(0, 0, 0), seabedClearance = 1.2, waterClearance = 1.8) {
