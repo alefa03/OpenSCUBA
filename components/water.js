@@ -17,12 +17,12 @@ export class Water {
         ]);
 
         const waterMaterial = new THREE.ShaderMaterial({
-        vertexShader: waterShader.VertexShader,
-        fragmentShader: waterShader.FragmentShader,
-        uniforms: mergedUniforms,
-        fog: true,
-        transparent: true,
-        side: THREE.DoubleSide
+            vertexShader: waterShader.VertexShader,
+            fragmentShader: waterShader.FragmentShader,
+            uniforms: mergedUniforms,
+            fog: true,
+            transparent: true,
+            side: THREE.DoubleSide
         });
 
         this.waterLevel = waterlevel;
