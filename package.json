@@ -1,4 +1,10 @@
 {
+  "name": "final-project-astrographics_industries",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@tweenjs/tween.js": "^25.0.0",
     "simplex-noise": "^4.0.3",
