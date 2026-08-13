@@ -38,7 +38,7 @@ const TAIL_VENTRAL_CHAIN = [
 const CRANIUM = 'Cranium_55';
 
 export class WhaleShark extends LargeMarineCreature {
-    static modelPath = '../assets/marine_creatures/whale_shark.glb';
+    static modelPath = `${import.meta.env.BASE_URL}assets/marine_creatures/whale_shark.glb`;
 
     constructor(scene, options = {}) {
         super(scene, options);

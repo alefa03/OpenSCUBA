@@ -39,7 +39,7 @@ export class ScubaDiver {
 
     async init() {
         const modelLoader = new ModelLoader();
-        const {model} = await modelLoader.loadModel('../assets/nanando_diver.glb');
+        const {model} = await modelLoader.loadModel(`${import.meta.env.BASE_URL}assets/nanando_diver.glb`);
 
         model.scale.multiplyScalar(0.5);
         model.rotation.order = 'YXZ';
@@ -90,10 +90,10 @@ export class ScubaDiver {
         };
 
         if (this.audioManager) {
-            await this.audioManager.load('splash', '../sounds/splash.mp3', false, 0.8);
-            await this.audioManager.load('flashlight_click', '../sounds/flashlight_click.mp3', false, 1);
+            await this.audioManager.load('splash', `${import.meta.env.BASE_URL}sounds/splash.mp3`, false, 0.8);
+            await this.audioManager.load('flashlight_click', `${import.meta.env.BASE_URL}sounds/flashlight_click.mp3`, false, 1);
             if (this.bones.head) {
-                await this.audioManager.load('scuba_bubbles', '../sounds/scuba_bubbles.mp3', true, 0.06, true, this.bones.head);
+                await this.audioManager.load('scuba_bubbles', `${import.meta.env.BASE_URL}sounds/scuba_bubbles.mp3`, true, 0.06, true, this.bones.head);
             }
         }
 

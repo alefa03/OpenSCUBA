@@ -3,7 +3,7 @@ import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { SmallMarineCreature } from "../marinecreature";
 
 export class CoralFish extends SmallMarineCreature {
-    static modelPath = '../assets/marine_creatures/coral_fish.glb';
+    static modelPath = `${import.meta.env.BASE_URL}assets/marine_creatures/coral_fish.glb`;
 
     constructor(scene, options = {}) {
         super(scene, options);

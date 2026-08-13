@@ -7,7 +7,7 @@ const LEFT_SUB_WING = 'Bone021_016';
 const RIGHT_SUB_WING = 'Bone021(mirrored)_023';
 
 export class MantaRay extends LargeMarineCreature {
-    static modelPath = '../assets/marine_creatures/manta_ray_texturefix.glb';
+    static modelPath = `${import.meta.env.BASE_URL}assets/marine_creatures/manta_ray_texturefix.glb`;
 
     constructor(scene, options = {}) {
         super(scene, options);

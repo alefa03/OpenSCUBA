@@ -4,7 +4,7 @@ import { ModelLoader } from '../../utils/model_loader.js';
 import { SmallMarineCreature } from "../marinecreature.js";
 
 export class EmperorAngelfish extends SmallMarineCreature {
-    static modelPath = '../assets/marine_creatures/emperor_angelfish.glb';
+    static modelPath = `${import.meta.env.BASE_URL}assets/marine_creatures/emperor_angelfish.glb`;
 
     static #fixMaterials(model) { // This utility function is used to fix the emperor angelfish's glitching issues. 
         model.traverse((obj) => {

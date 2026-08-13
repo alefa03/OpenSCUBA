@@ -76,11 +76,11 @@ export class World {
         this.scubadiver = new ScubaDiver(this.scene, this.camera, this.controls, this.audioManager);
 
         // Scenery
-        this.wreck = new Scenery(this.scene, '../assets/scenery/mcallister_tugboat_1963.glb', 0.3, new THREE.Vector3(50, 10, 40), new THREE.Vector3(0, -Math.PI/4, 0), true);
+        this.wreck = new Scenery(this.scene, `${import.meta.env.BASE_URL}assets/scenery/mcallister_tugboat_1963.glb`, 0.3, new THREE.Vector3(50, 10, 40), new THREE.Vector3(0, -Math.PI/4, 0), true);
 
         this.ornament = new Scenery(
             this.scene,
-            '../assets/scenery/fish_tank_ornament.glb',
+            `${import.meta.env.BASE_URL}assets/scenery/fish_tank_ornament.glb`,
             1.0,
             new THREE.Vector3(-19.5, 2.65, -28),
             new THREE.Vector3(0,Math.PI/6,0),
@@ -89,19 +89,19 @@ export class World {
 
         this.artificialreef = new Scenery(
             this.scene,
-            '../assets/scenery/artificial_reef_prado_marseilles_france_compressed.glb',
+            `${import.meta.env.BASE_URL}assets/scenery/artificial_reef_prado_marseilles_france_compressed.glb`,
             6.0,
             new THREE.Vector3(50, 6.8, -180),
             new THREE.Vector3(0,Math.PI/6-Math.PI/4,0),
             true,
-            '../textures/Texturelabs_Metal_137L.jpg',
+            `${import.meta.env.BASE_URL}textures/Texturelabs_Metal_137L.jpg`,
             20
         );
 
-        this.mountain = new Scenery(this.scene, '../assets/scenery/rock_mountain.glb', 100.0, new THREE.Vector3(-160, -1, -80), new THREE.Vector3(0, Math.PI/2.5, 0), true, '../textures/Texturelabs_Stone_138L.jpg', 4);
+        this.mountain = new Scenery(this.scene, `${import.meta.env.BASE_URL}assets/scenery/rock_mountain.glb`, 100.0, new THREE.Vector3(-160, -1, -80), new THREE.Vector3(0, Math.PI/2.5, 0), true, `${import.meta.env.BASE_URL}textures/Texturelabs_Stone_138L.jpg`, 4);
 
         // Map Boundaries (realistic walls)
-        const wallsPath = '../assets/scenery/wall_1_4k.glb';
+        const wallsPath = `${import.meta.env.BASE_URL}assets/scenery/wall_1_4k.glb`;
         this.walls = new SceneryWrapper(
             this.scene,
             [
@@ -140,16 +140,16 @@ export class World {
         this.coralReef = new SceneryWrapper(this.scene, [
             // base rock
             {
-                path: '../assets/scenery/flat_large_rock.glb',
+                path: `${import.meta.env.BASE_URL}assets/scenery/flat_large_rock.glb`,
                 scale: 50,
                 position: new THREE.Vector3(0, -4, 0),
                 canCollide: true,
-                texturePath: '../textures/Texturelabs_Stone_157L.jpg',
+                texturePath: `${import.meta.env.BASE_URL}textures/Texturelabs_Stone_157L.jpg`,
                 textureRepeat: 50,
             },
             
             {
-                path: '../assets/scenery/corals/giant_barrel_sponge.glb',
+                path: `${import.meta.env.BASE_URL}assets/scenery/corals/giant_barrel_sponge.glb`,
                 scale: 6,
                 position: new THREE.Vector3(10, 33.3, 32),
                 rotation: new THREE.Vector3(0, 0, 0),
@@ -157,77 +157,77 @@ export class World {
             },
 
             // pocillopora_eydouxi
-            { path: '../assets/scenery/corals/pocillopora_eydouxi.glb', scale: 0.08416,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/pocillopora_eydouxi.glb`, scale: 0.08416,
             position: new THREE.Vector3(-13.898, 2.321, -4.212), rotation: new THREE.Vector3(0.0216, 3.5795, 0.0566),
             canCollide: true },
-            { path: '../assets/scenery/corals/pocillopora_eydouxi.glb', scale: 0.07502,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/pocillopora_eydouxi.glb`, scale: 0.07502,
             position: new THREE.Vector3(-7.89, 2.286, 7.418), rotation: new THREE.Vector3(0.0924, Math.PI+2.5821, -0.0151),
             canCollide: true },
-            { path: '../assets/scenery/corals/pocillopora_eydouxi.glb', scale: 0.07391,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/pocillopora_eydouxi.glb`, scale: 0.07391,
             position: new THREE.Vector3(9.6, 3.5, 1.5), rotation: new THREE.Vector3(0.12, Math.PI+3.7089, -0.12),
             canCollide: true },
-            { path: '../assets/scenery/corals/pocillopora_eydouxi.glb', scale: 0.09339,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/pocillopora_eydouxi.glb`, scale: 0.09339,
             position: new THREE.Vector3(18.582, 2.3, -20.286), rotation: new THREE.Vector3(-Math.PI/8, Math.PI, Math.PI/8),
             canCollide: true },
         
             // fan_coral_med
-            { path: '../assets/scenery/corals/fan_coral_med_materialfix.glb', scale: 60.3296,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/fan_coral_med_materialfix.glb`, scale: 60.3296,
             position: new THREE.Vector3(26.275, 1, 10), rotation: new THREE.Vector3(0.0137, 3.5797, -0.12),
             canCollide: false },
-            { path: '../assets/scenery/corals/fan_coral_med_materialfix.glb', scale: 40.33232,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/fan_coral_med_materialfix.glb`, scale: 40.33232,
             position: new THREE.Vector3(-26, 0.3, -24), rotation: new THREE.Vector3(-0.12, 3.4704, 0.12),
             canCollide: false },
-            { path: '../assets/scenery/corals/fan_coral_med_materialfix.glb', scale: 50.25419,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/fan_coral_med_materialfix.glb`, scale: 50.25419,
             position: new THREE.Vector3(-9.178, 1.9, -16.87), rotation: new THREE.Vector3(0.0346, 0.2391, -0.0896),
             canCollide: false },
         
             // spined_sea_coral
-            { path: '../assets/scenery/corals/spined_sea_coral.glb', scale: 0.00352,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/spined_sea_coral.glb`, scale: 0.00352,
             position: new THREE.Vector3(7.834, 1.444, 18.324), rotation: new THREE.Vector3(-0.0098, 2.2331, 0.0784),
             canCollide: false },
-            { path: '../assets/scenery/corals/spined_sea_coral.glb', scale: 0.00332,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/spined_sea_coral.glb`, scale: 0.00332,
             position: new THREE.Vector3(-0.232, 2.164, -19.218), rotation: new THREE.Vector3(0.0686, 4.8082, -0.0821),
             canCollide: false },
-            { path: '../assets/scenery/corals/spined_sea_coral.glb', scale: 0.00383,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/spined_sea_coral.glb`, scale: 0.00383,
             position: new THREE.Vector3(-24.944, 1.012, -8.575), rotation: new THREE.Vector3(0.1147, 0.0325, 0.0583),
             canCollide: false },
         
             // crescent_moon_coral
-            { path: '../assets/scenery/corals/crescent_moon_coral.glb', scale: 5.05424,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/crescent_moon_coral.glb`, scale: 5.05424,
             position: new THREE.Vector3(10.789, 2, -22.781), rotation: new THREE.Vector3(0.12, 0.1907, 0.12),
             canCollide: false },
-            { path: '../assets/scenery/corals/crescent_moon_coral.glb', scale: 5.05945,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/crescent_moon_coral.glb`, scale: 5.05945,
             position: new THREE.Vector3(24.512, 1.1, -20.912), rotation: new THREE.Vector3(0.0637, 2.6906, 0.12),
             canCollide: false },
         
             // lowpoly_coral
-            { path: '../assets/scenery/corals/lowpoly_coral.glb', scale: 0.79819,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/lowpoly_coral.glb`, scale: 0.79819,
             position: new THREE.Vector3(-12, 1.5, 5), rotation: new THREE.Vector3(0, 2.9388, 0.0248),
             canCollide: true },
-            { path: '../assets/scenery/corals/lowpoly_coral.glb', scale: 0.70701,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/lowpoly_coral.glb`, scale: 0.70701,
             position: new THREE.Vector3(6.3, 1.6, -30.681), rotation: new THREE.Vector3(0.12, 2.0242, -0.032),
             canCollide: true },
-            { path: '../assets/scenery/corals/lowpoly_coral.glb', scale: 0.58913,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/lowpoly_coral.glb`, scale: 0.58913,
             position: new THREE.Vector3(15, 0.1, 27), rotation: new THREE.Vector3(-0.12, 6.0768, -0.12),
             canCollide: true },
         
             // coral_piece
-            { path: '../assets/scenery/corals/coral_piece.glb', scale: 0.26789,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/coral_piece.glb`, scale: 0.26789,
             position: new THREE.Vector3(7.009, 0.487, 30.131), rotation: new THREE.Vector3(-0.12, 1.2093, 0.12),
             canCollide: true },
-            { path: '../assets/scenery/corals/coral_piece.glb', scale: 0.27308,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/coral_piece.glb`, scale: 0.27308,
             position: new THREE.Vector3(16.72, 1.712, -2.476), rotation: new THREE.Vector3(-0.079, 5.5547, 0.0959),
             canCollide: true },
-            { path: '../assets/scenery/corals/coral_piece.glb', scale: 0.35746,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/coral_piece.glb`, scale: 0.35746,
             position: new THREE.Vector3(0.202, 1.59, 4.023), rotation: new THREE.Vector3(-0.0864, 0.1583, 0.0679),
             canCollide: true },
-            { path: '../assets/scenery/corals/coral_piece.glb', scale: 0.32381,
+            { path: `${import.meta.env.BASE_URL}assets/scenery/corals/coral_piece.glb`, scale: 0.32381,
             position: new THREE.Vector3(-10.34, -0.136, 28.334), rotation: new THREE.Vector3(-0.12, 5.484, -0.0752),
             canCollide: true },
         ]);
 
-        const kelpPath = '../assets/scenery/kelp_plant.glb';
-        const kelpTexture = '../textures/kelp.png';
+        const kelpPath = `${import.meta.env.BASE_URL}assets/scenery/kelp_plant.glb`;
+        const kelpTexture = `${import.meta.env.BASE_URL}textures/kelp.png`;
         this.kelps = new SceneryWrapper(
             this.scene,
             [
@@ -381,7 +381,7 @@ export class World {
             ]
         );
 
-        this.machinery = new Scenery(this.scene, '../assets/scenery/machinery.glb', 16, new THREE.Vector3(-35,0,120), undefined, true);
+        this.machinery = new Scenery(this.scene, `${import.meta.env.BASE_URL}assets/scenery/machinery.glb`, 16, new THREE.Vector3(-35,0,120), undefined, true);
         this.machinerybeam = new Beam({
             color: 0x4af9ff,
             intensity: 300,
@@ -418,12 +418,12 @@ export class World {
         }
 
         // Background sounds setup
-        this.audioManager.load('underwater_ambience', '../sounds/underwater.mp3', true, 0.5)
+        this.audioManager.load('underwater_ambience', `${import.meta.env.BASE_URL}sounds/underwater.mp3`, true, 0.5)
             .catch((error) => {
                 console.error('Error loading background audio:', error);
             });
         
-        this.audioManager.load('deep_ocean_dream', '../sounds/deep_ocean_dream.mp3', false, 1)
+        this.audioManager.load('deep_ocean_dream', `${import.meta.env.BASE_URL}sounds/deep_ocean_dream.mp3`, false, 1)
             .catch((error) => {
                 console.error('Error loading background audio:', error);
             });

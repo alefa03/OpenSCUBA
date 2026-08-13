@@ -26,7 +26,7 @@ export class Seabed {
             color: 0xc2b280, // Sand color
             roughness: 1.0,
             metalness: 0.0,
-            map: TextureLoader.load_texture('../textures/Texturelabs_Soil_126XL.jpg', 40)
+            map: TextureLoader.load_texture(`${import.meta.env.BASE_URL}textures/Texturelabs_Soil_126XL.jpg`, 40)
         });
 
         this.mesh = new THREE.Mesh(seabed, this.material);

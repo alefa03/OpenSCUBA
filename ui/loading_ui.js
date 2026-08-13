@@ -41,7 +41,7 @@ export class LoadingUI {
 
     _preloadUiSounds() {
         this.world.audioManager
-            .load(UI_CLICK_SOUND, '../sounds/ui_click.mp3', false, 0.8)
+            .load(UI_CLICK_SOUND, `${import.meta.env.BASE_URL}sounds/ui_click.mp3`, false, 0.8)
             .catch((error) => console.error('Error loading UI click sound:', error));
     }
 

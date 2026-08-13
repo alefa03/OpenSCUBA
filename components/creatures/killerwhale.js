@@ -28,7 +28,7 @@ function findBone(model, targetName) {
 }
 
 export class KillerWhale extends LargeMarineCreature {
-	static modelPath = '../assets/marine_creatures/killer_whale.glb';
+	static modelPath = `${import.meta.env.BASE_URL}assets/marine_creatures/killer_whale.glb`;
 
 	constructor(scene, options = {}) {
 		super(scene, options);
