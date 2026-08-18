@@ -2,11 +2,20 @@ import * as THREE from 'three';
 import { ModelLoader } from "../utils/model_loader.js";
 import { TextureLoader } from "../utils/texture_loader.js";
 
+const MATERIAL_PROPERTY_BY_TEXTURE_TYPE = { // Maps a texture type to the MeshStandardMaterial property it belongs on.
+    color: 'map',
+    normal: 'normalMap',
+    roughness: 'roughnessMap',
+    metalness: 'metalnessMap',
+    ao: 'aoMap',
+    emissive: 'emissiveMap',
+};
+
 export class Scenery {
     #model;
     #litMaterials = []; // List of materials with an emissive tint whose intensity should track scene lighting
 
-    constructor(scene, path, scale = 1.0, position = new THREE.Vector3(0, 0, 0), rotation = new THREE.Vector3(0, 0, 0), canCollide = true, texturePath = null, textureRepeat = 1) {
+    constructor(scene, path, scale = 1.0, position = new THREE.Vector3(0, 0, 0), rotation = new THREE.Vector3(0, 0, 0), canCollide = true, texturePath = null, textureRepeat = 1, textureType = 'color') {
         if (!scene) throw Error("No scene specified!");
         if (!path) throw Error("No path specified!");
 
@@ -21,7 +30,7 @@ export class Scenery {
 
         let customTexture = null;
         if (texturePath) { // Loads a custom texture if a path is provided
-            customTexture = TextureLoader.load_texture(texturePath, textureRepeat);
+            customTexture = TextureLoader.load_texture(texturePath, textureRepeat, textureType);
         }
 
         modelLoader.loadModel(path)
@@ -38,10 +47,11 @@ export class Scenery {
                     const litMaterials = normalizeScanMaterial(obj.material);
                     this.#litMaterials.push(...litMaterials);
 
-                    if (customTexture) { // If present, a custom texture is applied to the material's map
+                    if (customTexture) { // If present, a custom texture is applied to the material slot matching its type
                         if (!obj.geometry.attributes.uv) generateTriplanarUVs(obj.geometry, 0.5 / this._scale);
-                        if (!obj.material.map) obj.material = obj.material.clone();
-                        obj.material.map = customTexture;
+                        const targetProperty = MATERIAL_PROPERTY_BY_TEXTURE_TYPE[textureType] ?? 'map';
+                        if (!obj.material[targetProperty]) obj.material = obj.material.clone();
+                        obj.material[targetProperty] = customTexture;
                         obj.material.needsUpdate = true;
                     }
 

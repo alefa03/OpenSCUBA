@@ -22,7 +22,8 @@ export class SceneryWrapper { // Utility class to easily handle multiple Scenery
                 config.rotation,
                 config.canCollide,
                 config.texturePath,
-                config.textureRepeat
+                config.textureRepeat,
+                config.textureType ?? 'color'
             );
         }
     }
