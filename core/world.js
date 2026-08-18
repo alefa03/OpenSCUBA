@@ -17,17 +17,31 @@ import { Scenery } from '../components/scenery.js';
 import { SceneryWrapper } from '../utils/scenery_wrapper.js';
 import { Beam } from '../components/beam.js'
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+import Stats from 'three/addons/libs/stats.module.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
-
 
 export class World {
     #enableworldaxes = false; // set to true to make world frame axes visible
 
     constructor(container) {
         this.timer = new THREE.Timer();
+        
+        this.stats = new Stats(); // FPS counter
+        //this.stats.dom.style.zIndex = '9';
+        this.stats.showPanel(0);
+        this.stats.dom.style.display = 'none'; // Stats visibility is set as hidden by default
+        document.body.appendChild(this.stats.dom);
+
+        window.addEventListener('keydown', (event) => { // Event Listener to toggle FPS counter visibility
+            if (event.key.toLowerCase() === 'h') {
+                const isHidden = this.stats.dom.style.display === 'none';
+                this.stats.dom.style.display = isHidden ? 'block' : 'none';
+            }
+        });
+
         this.dayClearColor = new THREE.Color(0x006994);
         this.nightClearColor = new THREE.Color(0x03101e);
         this.currentClearColor = new THREE.Color().copy(this.dayClearColor);
@@ -442,13 +456,15 @@ export class World {
 
     start() {
         this.renderer.setAnimationLoop((time) => {
-        this.render(time);
+            this.render(time);
         });
     }
 
     render(timestamp) {
         this.timer.update(timestamp);
         Tweener.update(timestamp);
+        this.stats.update();
+
         const delta = this.timer.getDelta();
         const elapsed = this.timer.getElapsed();
         const dayDuration = 1200;

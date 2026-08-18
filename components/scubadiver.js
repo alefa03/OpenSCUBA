@@ -113,6 +113,7 @@ export class ScubaDiver {
 
         window.addEventListener('keydown', (event) => { // Key listener for 'Flashlight on/off' command
             if (event.key.toLowerCase() === 'f') {
+                if (!this.controls.enabled) {return;}
                 this.flashlight.visible = !this.flashlight.visible;
                 this.audioManager.stop('flashlight_click');
                 this.audioManager.play('flashlight_click');
