@@ -24,9 +24,12 @@ export class Seabed {
 
         this.material = new THREE.MeshStandardMaterial({ 
             color: 0xc2b280, // Sand color
-            roughness: 1.0,
+            roughness: 0.9,
             metalness: 0.0,
-            map: TextureLoader.load_texture(`${import.meta.env.BASE_URL}textures/Texturelabs_Soil_126XL.jpg`, 40)
+            map: TextureLoader.load_texture(`${import.meta.env.BASE_URL}textures/seabed/Texturelabs_Soil_126XL.jpg`, 40, 'color'),
+            normalMap: TextureLoader.load_texture(`${import.meta.env.BASE_URL}textures/seabed/Ground055S_2K-JPG_NormalGL.jpg`, 40, 'normal', THREE.RepeatWrapping, THREE.RepeatWrapping),
+            roughnessMap: TextureLoader.load_texture(`${import.meta.env.BASE_URL}textures/seabed/Ground055S_2K-JPG_Roughness.jpg`, 40, 'roughness', THREE.RepeatWrapping, THREE.RepeatWrapping),
+            aoMap: TextureLoader.load_texture(`${import.meta.env.BASE_URL}textures/seabed/Ground055S_2K-JPG_AmbientOcclusion.jpg`, 40, 'ao', THREE.RepeatWrapping, THREE.RepeatWrapping)
         });
 
         this.mesh = new THREE.Mesh(seabed, this.material);

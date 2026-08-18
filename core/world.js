@@ -241,7 +241,7 @@ export class World {
         ]);
 
         const kelpPath = `${import.meta.env.BASE_URL}assets/scenery/kelp_plant.glb`;
-        const kelpTexture = `${import.meta.env.BASE_URL}textures/kelp.png`;
+        const kelpTexture = `${import.meta.env.BASE_URL}textures/solidgreen.jpg`;
         this.kelps = new SceneryWrapper(
             this.scene,
             [
