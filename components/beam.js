@@ -1,16 +1,7 @@
 import * as THREE from 'three';
 
 export class Beam extends THREE.Group {
-    constructor({
-        color = 0xffffff,
-        intensity = 100,
-        angle = Math.PI / 8,
-        distance = 20,
-        radius = 3,
-        length = 10,
-        opacity = 0.12,
-        penumbra = 0.2,
-    } = {}) {
+    constructor({color = 0xffffff, intensity = 100, angle = Math.PI / 8, distance = 20, radius = 3, length = 10, opacity = 0.12, penumbra = 0.2} = {}) {
         super();
 
         this.length = length;
@@ -69,10 +60,12 @@ export class Beam extends THREE.Group {
 
     setIntensity(intensity) {
         this.light.intensity = intensity;
+        this.light.visible = intensity > 0;
     }
 
     setOpacity(opacity) {
         this.mesh.material.opacity = opacity;
+        this.mesh.visible = opacity > 0;
     }
 
     setDirection(direction) {

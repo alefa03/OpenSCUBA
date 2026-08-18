@@ -410,6 +410,9 @@ export class World {
         this.machinerybeam.mesh.material.depthWrite = true;
         this.water.mesh.renderOrder = 1;
         this.scene.add(this.machinerybeam);
+        this.machinerypointlight = new THREE.PointLight(0x4af9ff, 100, 8);
+        this.machinerypointlight.position.set(-35,4,120);
+        this.scene.add(this.machinerypointlight);
 
         // Creatures
         this.angelfishes = new CreatureWrapper(this.scene, EmperorAngelfish, 50, { center: new THREE.Vector3(0, 8, 0), radius: 10 }, 3, Math.PI);
@@ -493,6 +496,7 @@ export class World {
 
         this.machinerybeam.setIntensity(daylightFactor < 0.2 ? 300 : 0);
         this.machinerybeam.setOpacity(daylightFactor < 0.2 ? 0.5 : 0);
+        this.machinerypointlight.intensity = (daylightFactor < 0.2 ? 100 : 0);
 
         const brightClearColor = this.nightClearColor.clone().lerp(this.daySkyColor, daylightFactor);
         const surfaceThreshold = 20;
