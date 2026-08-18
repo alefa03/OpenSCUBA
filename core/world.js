@@ -499,7 +499,7 @@ export class World {
         this.machinerypointlight.intensity = (daylightFactor < 0.2 ? 100 : 0);
 
         const brightClearColor = this.nightClearColor.clone().lerp(this.daySkyColor, daylightFactor);
-        const surfaceThreshold = 20;
+        const surfaceThreshold = 10;
         let clearColorToUse = this.currentClearColor;
         let fogDensity = densityForVisibility(100); // underwater default
 
