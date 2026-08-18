@@ -15,7 +15,7 @@ export class TextureLoader {
         throw new Error('TextureLoader is an abstract utility class and cannot be instantiated.');
     }
 
-    static load_texture(path, repeatVal, type = 'color') {
+    static load_texture(path, repeatVal, type = 'color', WrapS, wrapT) {
         const textureLoader = new THREE.TextureLoader();
         const textureName = path.split(/[/\\]/).pop();
         const texture = textureLoader.load(
@@ -30,8 +30,8 @@ export class TextureLoader {
         );
 
         texture.colorSpace = COLOR_SPACE_BY_TYPE[type] ?? THREE.NoColorSpace;
-        texture.wrapS = THREE.MirroredRepeatWrapping;
-        texture.wrapT = THREE.MirroredRepeatWrapping;
+        texture.wrapS = WrapS ?? THREE.MirroredRepeatWrapping;
+        texture.wrapT = wrapT ?? THREE.MirroredRepeatWrapping;
         texture.repeat.set(repeatVal, repeatVal);
 
         return texture;
