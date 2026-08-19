@@ -414,6 +414,10 @@ export class World {
         this.machinerypointlight.position.set(-35,4,120);
         this.scene.add(this.machinerypointlight);
 
+        // Tween state for smoothly turning the machinery beam/pointlight on and off
+        this.machineryOn = true;
+        this.machineryLightState = { beamIntensity: 300, beamOpacity: 0.32, pointIntensity: 100 };
+
         // Creatures
         this.angelfishes = new CreatureWrapper(this.scene, EmperorAngelfish, 50, { center: new THREE.Vector3(0, 8, 0), radius: 10 }, 3, Math.PI);
         this.angelfishes2 = new CreatureWrapper(this.scene, EmperorAngelfish, 22, { center: new THREE.Vector3(-35,12,120), radius: 6 }, 3, Math.PI);
@@ -494,9 +498,19 @@ export class World {
         this.wreck.setLightLevel(daylightFactor); // fades the tuned emissive tint in with daylight
         this.currentClearColor.copy(this.nightClearColor).lerp(this.dayClearColor, daylightFactor);
 
-        this.machinerybeam.setIntensity(daylightFactor < 0.2 ? 300 : 0);
-        this.machinerybeam.setOpacity(daylightFactor < 0.2 ? 0.5 : 0);
-        this.machinerypointlight.intensity = (daylightFactor < 0.2 ? 100 : 0);
+        const machineryShouldBeOn = daylightFactor < 0.2;
+        if (machineryShouldBeOn !== this.machineryOn) {
+            this.machineryOn = machineryShouldBeOn;
+            const target = machineryShouldBeOn
+                ? { beamIntensity: 300, beamOpacity: 0.5, pointIntensity: 100 }
+                : { beamIntensity: 0, beamOpacity: 0, pointIntensity: 0 };
+
+            Tweener.tween(this.machineryLightState, target, 500, Tweener.Easing.Quadratic.InOut, () => {
+                this.machinerybeam.setIntensity(this.machineryLightState.beamIntensity);
+                this.machinerybeam.setOpacity(this.machineryLightState.beamOpacity);
+                this.machinerypointlight.intensity = this.machineryLightState.pointIntensity;
+            });
+        }
 
         const brightClearColor = this.nightClearColor.clone().lerp(this.daySkyColor, daylightFactor);
         const surfaceThreshold = 10;
