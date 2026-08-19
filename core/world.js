@@ -28,7 +28,9 @@ export class World {
 
     constructor(container) {
         this.timer = new THREE.Timer();
-        
+        this.hasStarted = false; 
+        this.worldTime = 0;
+
         this.stats = new Stats(); // FPS counter
         //this.stats.dom.style.zIndex = '9';
         this.stats.showPanel(0);
@@ -453,6 +455,11 @@ export class World {
     }
 
     enterWorld() {
+        this.hasStarted = true; // Enable world updates
+    
+        this.timer.update(performance.now());
+        this.timer.getDelta();
+
         this.controls.enabled = true;
         this.scubadiver.playSplashSound();
         this.audioManager.play('underwater_ambience');
@@ -472,8 +479,15 @@ export class World {
         Tweener.update(timestamp);
         this.stats.update();
 
-        const delta = this.timer.getDelta();
-        const elapsed = this.timer.getElapsed();
+        let delta = this.timer.getDelta();
+
+        if (!this.hasStarted) { // Prevents time from elapsing if the user hasn't clicked play
+            delta = 0;
+        } else {
+            this.worldTime += delta; 
+        }
+
+        const elapsed = this.worldTime;
         const dayDuration = 1200;
         const timeOfDay = ((elapsed+220) % dayDuration) / dayDuration;
 
