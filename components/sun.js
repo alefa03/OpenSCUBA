@@ -81,7 +81,7 @@ export class Sun {
         }
 
         const angle = mappedTime * Math.PI * 2;
-        const horizontalRadius = 200;
+        const horizontalRadius = 230;
         const verticalRadius = 100;
         const horizonOffset = 45;
 
