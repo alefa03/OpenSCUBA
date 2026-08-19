@@ -29,7 +29,20 @@ export class World {
     constructor(container) {
         this.timer = new THREE.Timer();
         this.hasStarted = false; 
-        this.worldTime = 0;
+        this.worldTime = 224; // Time of the day at world start
+
+        // Time Display UI Setup
+        this.timeDisplay = document.createElement('div');
+        this.timeDisplay.style.position = 'absolute';
+        this.timeDisplay.style.bottom = '12px';
+        this.timeDisplay.style.right = '12px';
+        this.timeDisplay.style.color = 'white';
+        this.timeDisplay.style.fontFamily = 'monospace';
+        this.timeDisplay.style.fontSize = '24px';
+        this.timeDisplay.style.fontWeight = 'bold';
+        this.timeDisplay.style.zIndex = '9';
+        this.timeDisplay.innerText = "00:00"; // Initial placeholder
+        document.body.appendChild(this.timeDisplay);
 
         this.stats = new Stats(); // FPS counter
         //this.stats.dom.style.zIndex = '9';
@@ -489,7 +502,16 @@ export class World {
 
         const elapsed = this.worldTime;
         const dayDuration = 1200;
-        const timeOfDay = ((elapsed+220) % dayDuration) / dayDuration;
+        const timeOfDay = (elapsed % dayDuration) / dayDuration;
+
+        // Time Display update
+        const clockTimeOfDay = (timeOfDay + 0.25) % 1.0; // Shift the clock forward by 6 hours to align sunrise
+        const totalMinutes = clockTimeOfDay * 24 * 60;
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+        const formattedHours = String(hours).padStart(2, '0');
+        const formattedMinutes = String(minutes).padStart(2, '0');
+        this.timeDisplay.innerText = `${formattedHours}:${formattedMinutes}`;
 
         this.seabed.update(timestamp);
         this.water.update(timestamp);
@@ -554,6 +576,10 @@ export class World {
         
         if (this.renderer.domElement && this.renderer.domElement.parentNode) {
             this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+        }
+
+        if (this.timeDisplay && this.timeDisplay.parentNode) {
+            this.timeDisplay.parentNode.removeChild(this.timeDisplay);
         }
 
         console.log("World destroyed and WebGL memory cleared.");

@@ -70,7 +70,17 @@ export class Sun {
 
     update(timeOfDay = 0) {
         const normalizedTime = ((timeOfDay % 1) + 1) % 1;
-        const angle = normalizedTime * Math.PI * 2;
+
+        const dayDuration = 0.625; // Makes daytime last 15 hours (15/24 = 0.625) from 06:00 to 21:00.
+        let mappedTime;
+        
+        if (normalizedTime < dayDuration) {
+            mappedTime = (normalizedTime / dayDuration) * 0.5; // Maps hours 06-21 into the daylight half of the sun's arc
+        } else {
+            mappedTime = 0.5 + ((normalizedTime - dayDuration) / (1.0 - dayDuration)) * 0.5; // Maps hours 21-06 into the night half of the sun's arc
+        }
+
+        const angle = mappedTime * Math.PI * 2;
         const horizontalRadius = 200;
         const verticalRadius = 100;
         const horizonOffset = 45;
@@ -81,7 +91,7 @@ export class Sun {
         this.sunMesh.position.set(sunX, sunHeight, 0);
 
         const daylightFactor = Math.max(0, Math.sin(angle));
-        const sunColor = this.getSunColor(normalizedTime);
+        const sunColor = this.getSunColor(mappedTime);
 
         this.sunMesh.material.color.copy(sunColor);
         this.sunLight.color.copy(this.sunMesh.material.color);
@@ -95,34 +105,34 @@ export class Sun {
         return daylightFactor;
     }
 
-    getSunColor(normalizedTime) {
+    getSunColor(mappedTime) {
         const colors = this.sunColors;
-        const visibleDayEnd = 0.5;
-        const dawnEnd = 0.125;
-        const middayEnd = 0.25;
-        const noonEnd = 0.375;
+        
+        const dawnEnd = 0.05;       // ~07:30
+        const middayEnd = 0.35;     // ~16:30
+        const noonEnd = 0.45;       // ~19:30
+        const visibleDayEnd = 0.5;  //  21:00
 
-        if (normalizedTime < dawnEnd) {
-            const t = normalizedTime / dawnEnd;
+        if (mappedTime < dawnEnd) {
+            const t = mappedTime / dawnEnd;
             return colors.night.clone().lerp(colors.dawn, t);
         }
 
-        if (normalizedTime < middayEnd) {
-            const t = (normalizedTime - dawnEnd) / (middayEnd - dawnEnd);
+        if (mappedTime < middayEnd) {
+            const t = (mappedTime - dawnEnd) / (middayEnd - dawnEnd);
             return colors.dawn.clone().lerp(colors.midday, t);
         }
 
-        if (normalizedTime < noonEnd) {
-            const t = (normalizedTime - middayEnd) / (noonEnd - middayEnd);
+        if (mappedTime < noonEnd) {
+            const t = (mappedTime - middayEnd) / (noonEnd - middayEnd);
             return colors.midday.clone().lerp(colors.noon, t);
         }
 
-        if (normalizedTime < visibleDayEnd) {
-            const t = (normalizedTime - noonEnd) / (visibleDayEnd - noonEnd);
+        if (mappedTime < visibleDayEnd) {
+            const t = (mappedTime - noonEnd) / (visibleDayEnd - noonEnd);
             return colors.noon.clone().lerp(colors.night, t);
         }
 
-        const t = Math.min(1, (normalizedTime - visibleDayEnd) / (1 - visibleDayEnd));
-        return colors.noon.clone().lerp(colors.night, t);
+        return colors.night.clone();
     }
 }   
