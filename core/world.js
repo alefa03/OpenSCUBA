@@ -122,9 +122,7 @@ export class World {
             6.0,
             new THREE.Vector3(50, 6.8, -180),
             new THREE.Vector3(0,Math.PI/6-Math.PI/4,0),
-            true,
-            `${import.meta.env.BASE_URL}textures/Texturelabs_Metal_137L.jpg`,
-            20
+            true
         );
 
         this.mountain = new Scenery(this.scene, `${import.meta.env.BASE_URL}assets/scenery/rock_mountain.glb`, 100.0, new THREE.Vector3(-160, -1, -80), new THREE.Vector3(0, Math.PI/2.5, 0), true, `${import.meta.env.BASE_URL}textures/Texturelabs_Stone_138L.jpg`, 4);
