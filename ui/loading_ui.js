@@ -54,7 +54,13 @@ export class LoadingUI {
     _trackLoading() {
         const manager = THREE.DefaultLoadingManager;
 
+        this._itemsLoaded = 0;
+        this._itemsTotal = 0;
+
         manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+            this._itemsLoaded = itemsLoaded;
+            this._itemsTotal = itemsTotal;
+
             const percent = itemsTotal > 0 ? (itemsLoaded / itemsTotal) * 100 : 100;
             this._maxPercent = Math.max(this._maxPercent, percent); // never let the bar visibly backtrack
             this.progressBar.style.width = `${this._maxPercent}%`;
@@ -63,13 +69,12 @@ export class LoadingUI {
             this._scheduleReadyCheck();
         };
 
-
-        manager.onLoad = () => this._scheduleReadyCheck();
+        manager.onLoad = () => this._scheduleReadyCheck(true);
 
         manager.onError = (url) => console.error(`Asset failed to load: ${url}`);
 
         if (manager.itemsTotal > 0 && manager.itemsLoaded >= manager.itemsTotal) { // covers the edge case in which everything had already finished loading
-            this._scheduleReadyCheck();
+            this._scheduleReadyCheck(true);
         }
 
         this._fallbackTimer = setTimeout(() => { // avoids Play to get stuck disabled forever.
@@ -80,11 +85,10 @@ export class LoadingUI {
         }, LOAD_FALLBACK_MS);
     }
 
-    _scheduleReadyCheck() { // waits for a short quiet period with no further progress before confirming the 'loading done' state
+    _scheduleReadyCheck(forceReady = false) { // waits for a short quiet period with no further progress before confirming the 'loading done' state
         clearTimeout(this._readyCheckTimer);
         this._readyCheckTimer = setTimeout(() => {
-            const manager = THREE.DefaultLoadingManager;
-            if (manager.itemsLoaded >= manager.itemsTotal) {
+            if (forceReady || (this._itemsTotal > 0 && this._itemsLoaded >= this._itemsTotal)) {
                 this._setReady();
             }
         }, READY_DEBOUNCE_MS);
