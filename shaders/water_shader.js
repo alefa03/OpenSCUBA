@@ -1,8 +1,19 @@
+import * as THREE from 'three';
+
 export class WaterShader {
     constructor() {
+        this.uniforms = {
+            uTime: { value: 0 },
+            uSunPosition: { value: new THREE.Vector3(0, 120, 0) },
+            uSunColor: { value: new THREE.Color(0xffffff) },
+            uSunIntensity: { value: 1.0 },
+            uNormalMatrix: { value: new THREE.Matrix3() }
+        };
+
         this.VertexShader = `
             uniform float uTime;
-            
+            uniform mat3 uNormalMatrix; // world-space normal matrix (inverse-transpose of modelMatrix)
+
             varying vec2 vUv;
             varying vec3 vNormal;
             varying vec3 vModelPosition;
@@ -56,7 +67,7 @@ export class WaterShader {
                 vec3 tangentZ = pZ - targetPosition;
 
                 vec3 calculatedNormal = normalize(cross(tangentZ, tangentX)); 
-                vNormal = normalize(mat3(modelMatrix) * calculatedNormal);
+                vNormal = normalize(uNormalMatrix * calculatedNormal);
 
                 vec4 mvPosition = viewMatrix * modelPosition;
                 gl_Position = projectionMatrix * mvPosition;
@@ -66,6 +77,10 @@ export class WaterShader {
         `;
 
         this.FragmentShader = `
+            uniform vec3 uSunPosition;   // world-space position of the sun
+            uniform vec3 uSunColor;      // current sun color
+            uniform float uSunIntensity; // current sunlight intensity
+
             varying vec3 vNormal;
             varying vec3 vModelPosition;
             varying float vElevation;
@@ -78,15 +93,16 @@ export class WaterShader {
 
                 // Fresnel effect for sky reflections
                 float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
-                //fresnel = clamp(fresnel, 0.0, 0.5);
 
                 vec3 deepColor = vec3(0.0, 0.1, 0.3);
                 vec3 shallowColor = vec3(0.1, 0.5, 0.7);
-                vec3 waterColor = mix(deepColor, shallowColor, (vElevation + 0.5));
+
+                float elevationMix = clamp(vElevation + 0.5, 0.0, 1.0);
+                vec3 waterColor = mix(deepColor, shallowColor, elevationMix);
 
                 vec3 skyColor = vec3(0.2, 0.5, 0.7);
 
-                vec3 lightDir = normalize(vec3(0.0, 10.0, 5.0)); // Matches your sun position
+                vec3 lightDir = normalize(uSunPosition);
                 vec3 halfDir = normalize(lightDir + viewDir);
 
                 float ndotl = max(dot(normal, lightDir), 0.0);
@@ -97,8 +113,8 @@ export class WaterShader {
                 vec3 ks = vec3(1.0, 0.95, 0.8);
 
                 vec3 ambient = ka * waterColor;
-                vec3 diffuse = kd * ndotl * waterColor;
-                vec3 specular = ks * pow(ndoth, 128.0) * 0.8;
+                vec3 diffuse = kd * ndotl * waterColor * uSunColor * uSunIntensity;
+                vec3 specular = ks * pow(ndoth, 128.0) * ndotl * uSunColor * uSunIntensity * 0.8;
 
                 vec3 litWaterColor = ambient + diffuse + specular;
                 vec3 finalColor = mix(litWaterColor, skyColor, fresnel * 0.7);
