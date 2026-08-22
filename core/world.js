@@ -65,8 +65,11 @@ export class World {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({
+            powerPreference: 'high-performance'
+        });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFShadowMap;
         document.body.appendChild(this.renderer.domElement);
@@ -518,12 +521,12 @@ export class World {
         this.controls.update(delta);
         resolveEnvironmentCollisions(this.camera, this.seabed.mesh, this.water.waterLevel,  this.scubadiver.localOffset);
         this.scubadiver.update(delta);
-        this.angelfishes.update(delta);
-        this.angelfishes2.update(delta);
-        this.angelfishes3.update(delta);
-        this.coralfishes.update(delta);
-        this.coralfishes2.update(delta);
-        this.coralfishes3.update(delta);
+        this.angelfishes.update(delta, this.camera);
+        this.angelfishes2.update(delta, this.camera);
+        this.angelfishes3.update(delta, this.camera);
+        this.coralfishes.update(delta, this.camera);
+        this.coralfishes2.update(delta, this.camera);
+        this.coralfishes3.update(delta, this.camera);
         this.whaleshark.update(delta);
         this.mantaray.update(delta);
         this.killerwhale.update(delta);
