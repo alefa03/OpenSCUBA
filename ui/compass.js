@@ -41,7 +41,7 @@ export class Compass {
         this.headingLabel.style.fontFamily = 'monospace';
         this.headingLabel.style.fontSize = '13px';
         this.headingLabel.style.fontWeight = 'bold';
-        this.headingLabel.style.textShadow = '0 0 4px rgba(0, 0, 0, 0.8)';
+        //this.headingLabel.style.textShadow = '0 0 4px rgba(0, 0, 0, 0.8)';
         this.headingLabel.style.whiteSpace = 'nowrap';
 
         this.headingValue = document.createElement('span');

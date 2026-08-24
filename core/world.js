@@ -7,6 +7,7 @@ import { Tweener } from '../utils/tweener.js';
 import { GarbageCollector } from '../utils/garbage_collector.js';
 import { ScubaDiver } from '../components/scubadiver.js';
 import { Compass } from '../ui/compass.js';
+import { TimeDisplay } from '../ui/time_display.js';
 import { DepthGauge } from '../ui/depth_gauge.js';
 import { Sun } from '../components/sun.js';
 import { EmperorAngelfish } from '../components/creatures/emperorangelfish.js';
@@ -33,18 +34,7 @@ export class World {
         this.hasStarted = false; 
         this.worldTime = 224; // Time of the day at world start
 
-        // Time Display UI Setup
-        this.timeDisplay = document.createElement('div');
-        this.timeDisplay.style.position = 'absolute';
-        this.timeDisplay.style.bottom = '12px';
-        this.timeDisplay.style.right = '12px';
-        this.timeDisplay.style.color = 'white';
-        this.timeDisplay.style.fontFamily = 'monospace';
-        this.timeDisplay.style.fontSize = '24px';
-        this.timeDisplay.style.fontWeight = 'bold';
-        this.timeDisplay.style.zIndex = '9';
-        this.timeDisplay.innerText = "00:00"; // Initial placeholder
-        document.body.appendChild(this.timeDisplay);
+        this.timeDisplay = new TimeDisplay(); // Time Display HUD
 
         this.stats = new Stats(); // FPS counter
         //this.stats.dom.style.zIndex = '9';
@@ -511,14 +501,7 @@ export class World {
         const dayDuration = 1200;
         const timeOfDay = (elapsed % dayDuration) / dayDuration;
 
-        // Time Display update
-        const clockTimeOfDay = (timeOfDay + 0.25) % 1.0; // Shift the clock forward by 6 hours to align sunrise
-        const totalMinutes = clockTimeOfDay * 24 * 60;
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = Math.floor(totalMinutes % 60);
-        const formattedHours = String(hours).padStart(2, '0');
-        const formattedMinutes = String(minutes).padStart(2, '0');
-        this.timeDisplay.innerText = `${formattedHours}:${formattedMinutes}`;
+        this.timeDisplay.update(timeOfDay);
 
         this.seabed.update(timestamp);
         const daylightFactor = this.sun.update(timeOfDay);
@@ -588,8 +571,8 @@ export class World {
             this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
         }
 
-        if (this.timeDisplay && this.timeDisplay.parentNode) {
-            this.timeDisplay.parentNode.removeChild(this.timeDisplay);
+        if (this.timeDisplay) {
+            this.timeDisplay.destroy();
         }
 
         if (this.compass) {

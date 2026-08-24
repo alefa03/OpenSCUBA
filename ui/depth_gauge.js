@@ -49,7 +49,7 @@ export class DepthGauge {
         this.depthLabel.style.fontFamily = 'monospace';
         this.depthLabel.style.fontSize = '13px';
         this.depthLabel.style.fontWeight = 'bold';
-        this.depthLabel.style.textShadow = '0 0 4px rgba(0, 0, 0, 0.8)';
+        //this.depthLabel.style.textShadow = '0 0 4px rgba(0, 0, 0, 0.8)';
         this.depthLabel.style.whiteSpace = 'nowrap';
         this.depthLabel.innerText = '0.0m';
         this.container.appendChild(this.depthLabel);
