@@ -6,6 +6,8 @@ import { AudioManager } from '../utils/audio_manager.js';
 import { Tweener } from '../utils/tweener.js';
 import { GarbageCollector } from '../utils/garbage_collector.js';
 import { ScubaDiver } from '../components/scubadiver.js';
+import { Compass } from '../ui/compass.js';
+import { DepthGauge } from '../ui/depth_gauge.js';
 import { Sun } from '../components/sun.js';
 import { EmperorAngelfish } from '../components/creatures/emperorangelfish.js';
 import { CoralFish } from '../components/creatures/coralfish.js';
@@ -97,6 +99,8 @@ export class World {
         this.controls = new Controls(this.camera);
         this.audioManager = new AudioManager(this.camera);
 
+        this.compass = new Compass(this.camera); // Compass HUD
+
         // Assets instantiation
         
         // Essentials
@@ -106,6 +110,8 @@ export class World {
 
         // Character
         this.scubadiver = new ScubaDiver(this.scene, this.camera, this.controls, this.audioManager);
+
+        this.depthGauge = new DepthGauge(this.scubadiver, this.water, {maxDepth: this.water.waterLevel});// Depth Gauge HUD
 
         // Scenery
         this.wreck = new Scenery(this.scene, `${import.meta.env.BASE_URL}assets/scenery/mcallister_tugboat_1963.glb`, 0.3, new THREE.Vector3(50, 10, 40), new THREE.Vector3(0, -Math.PI/4, 0), true);
@@ -518,6 +524,8 @@ export class World {
         const daylightFactor = this.sun.update(timeOfDay);
 
         this.controls.update(delta);
+        this.compass.update();
+        this.depthGauge.update();
         resolveEnvironmentCollisions(this.camera, this.seabed.mesh, this.water.waterLevel,  this.scubadiver.localOffset);
         this.scubadiver.update(delta);
         this.angelfishes.update(delta, this.camera);
@@ -582,6 +590,14 @@ export class World {
 
         if (this.timeDisplay && this.timeDisplay.parentNode) {
             this.timeDisplay.parentNode.removeChild(this.timeDisplay);
+        }
+
+        if (this.compass) {
+            this.compass.destroy();
+        }
+
+        if (this.depthGauge) {
+            this.depthGauge.destroy();
         }
 
         console.log("World destroyed and WebGL memory cleared.");
