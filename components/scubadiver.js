@@ -3,6 +3,7 @@ import { ModelLoader } from '../utils/model_loader.js';
 
 export class ScubaDiver {
     #flashlightdebug = false;
+    #creatureCollisionDebug = false;
 
     constructor(scene, camera, controls, audioManager = null) {
         this.scene = scene;
@@ -17,8 +18,7 @@ export class ScubaDiver {
         this.localOffset = new THREE.Vector3(0, -3, -3.5);
         this.collisionOffset = new THREE.Vector3(0.15, 0.15, 0.15);
         this.diverRadius = 0.6; // sphere radius used for scenery push-out collision
-        this.lastSafeCameraPosition = new THREE.Vector3();
-        this.hasSafePosition = false;
+        this._creatureBoxHelpers = new Map();
 
         this.flashlight = new THREE.SpotLight(0xfeffb7, 100, 30, Math.PI/3, 0.5, 2);
         this.flashlight.castShadow = true; // Enable shadow casting for the light
@@ -126,21 +126,11 @@ export class ScubaDiver {
 
         if (this.#flashlightdebug && this._spotLightHelper) this._spotLightHelper.update();
 
-        if (!this.hasSafePosition) {
-            this.lastSafeCameraPosition.copy(this.camera.position);
-            this.hasSafePosition = true;
-        }
-
         const diverCollisionPosition = this.getCollisionPosition();
 
-        if (this.isCollidingWithCreature(diverCollisionPosition)) {
-            this.camera.position.copy(this.lastSafeCameraPosition);
-        } else {
-            const resolved = this.resolveSceneryPushback(diverCollisionPosition);
-            this.camera.position.add(resolved.clone().sub(diverCollisionPosition));
-        }
-
-        this.lastSafeCameraPosition.copy(this.camera.position);
+        let resolvedPosition = this.resolveCreaturePushback(diverCollisionPosition);
+        resolvedPosition = this.resolveSceneryPushback(resolvedPosition);
+        this.camera.position.add(resolvedPosition.clone().sub(diverCollisionPosition));
 
         if (this.camera) { // If a valid camera object was passed to the class constructor, the model gets attached to its frame.
             const worldOffset = this.localOffset.clone().applyQuaternion(this.camera.quaternion);
@@ -259,8 +249,9 @@ export class ScubaDiver {
         );
     }
 
-    isCollidingWithCreature(position) {
-        let isColliding = false;
+    resolveCreaturePushback(desiredPosition) { // Creatures collision detection
+        const result = desiredPosition.clone();
+        const visited = this.#creatureCollisionDebug ? new Set() : null;
 
         this.scene.traverse((object) => {
             if (!object.userData?.canCollide || object.userData?.isScenery || !(object.isMesh || object.isSkinnedMesh)) return;
@@ -272,19 +263,67 @@ export class ScubaDiver {
             const min = boxCenter.clone().sub(boxHalfSize).sub(this.collisionOffset);
             const max = boxCenter.clone().add(boxHalfSize).add(this.collisionOffset);
 
-            const isInsideX = position.x >= min.x && position.x <= max.x;
-            const isInsideY = position.y >= min.y && position.y <= max.y;
-            const isInsideZ = position.z >= min.z && position.z <= max.z;
+            if (this.#creatureCollisionDebug) {
+                visited.add(object);
+                this._updateCreatureDebugHelper(object, min, max);
+            }
 
-            if (isInsideX && isInsideY && isInsideZ) {
-                isColliding = true;
+            const isInsideX = result.x >= min.x && result.x <= max.x;
+            const isInsideY = result.y >= min.y && result.y <= max.y;
+            const isInsideZ = result.z >= min.z && result.z <= max.z;
+
+            if (!(isInsideX && isInsideY && isInsideZ)) return;
+
+            // Signed distance needed to push the diver out through the nearest face on each axis.
+            const pushX = (result.x - min.x) < (max.x - result.x) ? -(result.x - min.x) : (max.x - result.x);
+            const pushY = (result.y - min.y) < (max.y - result.y) ? -(result.y - min.y) : (max.y - result.y);
+            const pushZ = (result.z - min.z) < (max.z - result.z) ? -(result.z - min.z) : (max.z - result.z);
+
+            const absX = Math.abs(pushX);
+            const absY = Math.abs(pushY);
+            const absZ = Math.abs(pushZ);
+            const minAbs = Math.min(absX, absY, absZ);
+
+            // Push out along whichever axis requires the least displacement (avoids the diver to get stuck inside a bounding box)
+            if (minAbs === absX) {
+                result.x += pushX;
+            } else if (minAbs === absY) {
+                result.y += pushY;
+            } else {
+                result.z += pushZ;
             }
         });
 
-        return isColliding;
+        this._pruneCreatureDebugHelpers(visited);
+
+        return result;
+    }
+
+    _updateCreatureDebugHelper(object, min, max) { // Creates or repositions the wireframe box used to visualize a creature's live collision volume.
+        let helper = this._creatureBoxHelpers.get(object);
+        if (!helper) {
+            helper = new THREE.Box3Helper(new THREE.Box3(min.clone(), max.clone()), 0xff0000);
+            this.scene.add(helper);
+            this._creatureBoxHelpers.set(object, helper);
+        } else {
+            helper.box.min.copy(min);
+            helper.box.max.copy(max);
+        }
+    }
+
+    _pruneCreatureDebugHelpers(visited) { // Removes debug helpers for creatures no longer seen
+        if (this._creatureBoxHelpers.size === 0) return;
+
+        for (const [object, helper] of this._creatureBoxHelpers) {
+            if (visited && visited.has(object)) continue;
+
+            this.scene.remove(helper);
+            helper.dispose();
+            this._creatureBoxHelpers.delete(object);
+        }
     }
     
-    resolveSceneryPushback(desiredPosition) {
+    resolveSceneryPushback(desiredPosition) { // Scenery collision detection
         const result = desiredPosition.clone();
 
         if (typeof this.diverRadius !== 'number' || Number.isNaN(this.diverRadius)) {
