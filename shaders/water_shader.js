@@ -7,7 +7,8 @@ export class WaterShader {
             uSunPosition: { value: new THREE.Vector3(0, 120, 0) },
             uSunColor: { value: new THREE.Color(0xffffff) },
             uSunIntensity: { value: 1.0 },
-            uNormalMatrix: { value: new THREE.Matrix3() }
+            uNormalMatrix: { value: new THREE.Matrix3() },
+            uSkyColor: { value: new THREE.Color(0x336699) }
         };
 
         this.VertexShader = `
@@ -43,10 +44,10 @@ export class WaterShader {
 
             vec3 getDisplacedPosition(vec3 pos, float time) {
                 vec3 displacedPos = pos;
-                displacedPos += addGerstnerWave(pos, vec2(1.0, 0.3),  0.15, 30.0, time);
-                displacedPos += addGerstnerWave(pos, vec2(0.3, 1.0),  0.10, 15.0, time);
-                displacedPos += addGerstnerWave(pos, vec2(-0.7, 0.5), 0.05, 5.0,  time);
-                displacedPos += addGerstnerWave(pos, vec2(0.2, -0.8), 0.02, 1.5,  time);
+                displacedPos += addGerstnerWave(pos, vec2(1.0, 0.3),  0.05, 20.0, time);
+                displacedPos += addGerstnerWave(pos, vec2(0.3, 1.0),  0.035, 14.0, time);
+                displacedPos += addGerstnerWave(pos, vec2(-0.7, 0.5), 0.02, 9.0,  time);
+                displacedPos += addGerstnerWave(pos, vec2(0.2, -0.8), 0.01, 6.0,  time);
                 return displacedPos;
             }
 
@@ -80,6 +81,7 @@ export class WaterShader {
             uniform vec3 uSunPosition;   // world-space position of the sun
             uniform vec3 uSunColor;      // current sun color
             uniform float uSunIntensity; // current sunlight intensity
+            uniform vec3 uSkyColor;      // renderer clear color (scene background)
 
             varying vec3 vNormal;
             varying vec3 vModelPosition;
@@ -100,7 +102,7 @@ export class WaterShader {
                 float elevationMix = clamp(vElevation + 0.5, 0.0, 1.0);
                 vec3 waterColor = mix(deepColor, shallowColor, elevationMix);
 
-                vec3 skyColor = vec3(0.2, 0.5, 0.7);
+                vec3 skyColor = mix(uSkyColor, vec3(0.2, 0.5, 0.7), 0.4); // current sky color is blended with a brighter color to avoid the water surface to confuse with the background
 
                 vec3 lightDir = normalize(uSunPosition);
                 vec3 halfDir = normalize(lightDir + viewDir);
@@ -116,11 +118,11 @@ export class WaterShader {
                 vec3 diffuse = kd * ndotl * waterColor * uSunColor * uSunIntensity;
                 vec3 specular = ks * pow(ndoth, 128.0) * ndotl * uSunColor * uSunIntensity * 0.8;
 
-                vec3 litWaterColor = ambient + diffuse + specular;
+                vec3 litWaterColor = clamp(ambient + diffuse + specular, 0.0, 1.0);
                 vec3 finalColor = mix(litWaterColor, skyColor, fresnel * 0.7);
 
                 gl_FragColor = vec4(finalColor, 0.9);
-
+                
                 #include <fog_fragment>
             }
         `;

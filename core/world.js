@@ -516,7 +516,6 @@ export class World {
 
         this.seabed.update(timestamp);
         const daylightFactor = this.sun.update(timeOfDay);
-        this.water.update(timestamp, this.sun);
 
         this.controls.update(delta);
         resolveEnvironmentCollisions(this.camera, this.seabed.mesh, this.water.waterLevel,  this.scubadiver.localOffset);
@@ -566,6 +565,8 @@ export class World {
         this.renderer.setClearColor(clearColorToUse);
         this.scene.fog.color.copy(clearColorToUse);
         this.scene.fog.density = fogDensity;
+
+        this.water.update(timestamp, this.sun, clearColorToUse);
 
         this.renderer.render(this.scene, this.camera);
     }

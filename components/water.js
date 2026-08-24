@@ -5,7 +5,7 @@ export class Water {
     constructor(scene, waterlevel = 60) {
         const waterShader = new WaterShader();
 
-        const waterGeometry = new THREE.PlaneGeometry(800, 800, 128, 128);
+        const waterGeometry = new THREE.PlaneGeometry(800, 800, 256, 256);
         waterGeometry.rotateX(-Math.PI / 2);
 
         const mergedUniforms = THREE.UniformsUtils.merge([
@@ -34,7 +34,7 @@ export class Water {
         this.mesh.material.uniforms.uNormalMatrix.value.getNormalMatrix(this.mesh.matrixWorld);
     }
 
-    update(time, sun) {
+    update(time, sun, skyColor) {
         const uniforms = this.mesh.material.uniforms;
 
         uniforms.uTime.value = time * 0.001; // Converts to seconds
@@ -43,6 +43,10 @@ export class Water {
             uniforms.uSunPosition.value.copy(sun.sunMesh.position);
             uniforms.uSunColor.value.copy(sun.sunLight.color);
             uniforms.uSunIntensity.value = sun.sunLight.intensity;
+        }
+
+        if (skyColor) {
+            uniforms.uSkyColor.value.copy(skyColor);
         }
 
         this.mesh.updateMatrixWorld();
