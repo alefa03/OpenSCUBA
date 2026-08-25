@@ -6,7 +6,7 @@ const CONTENT_FADE_MS = 1000;   // UI content fade-out time
 const BLACK_HOLD_MS = 400;      // hold time on solid black background
 const WORLD_FADE_MS = 1000;     // black background fade-away time
 const READY_DEBOUNCE_MS = 300;  // loading time tolerance (avoids 'loading done' false positives)
-const LOAD_FALLBACK_MS = 45000; // max loading time (avoids endless loading)
+const LOAD_FALLBACK_MS = 60000; // max loading time (avoids endless loading)
 
 function once(fn) {
     let called = false;
