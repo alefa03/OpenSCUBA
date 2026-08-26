@@ -62,7 +62,7 @@ export class SmallMarineCreature extends MarineCreature {
 
         super(scene, options);
 
-        // --- wander/steering state, shared by every creature type ---
+        // wandering configuration and state
         this.wanderBounds = options.bounds || { center: new THREE.Vector3(0, 5, 0), radius: 5 };
         this.wanderSpeed = options.speed ?? (0.6 + Math.random() * 0.4);
         this.idleDuration = options.idleDuration || [2, 6]; // [min, max] random pause at each stop (in seconds)
@@ -85,9 +85,11 @@ export class SmallMarineCreature extends MarineCreature {
     _updateWander(deltaTime) {
         if (!this.model) return 0;
 
+        const dt = Math.min(deltaTime, 0.1); // deltaTime clamp: caps how far a single call can move/rotate this creature.
+
         if (this.isIdling) { // moving-to-stop easing
-            this.idleTimer -= deltaTime;
-            this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, 0, Math.min(1, deltaTime * 3));
+            this.idleTimer -= dt;
+            this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, 0, Math.min(1, dt * 3));
             if (this.idleTimer <= 0) {
                 this.isIdling = false;
                 this._pickNewWanderTarget();
@@ -108,9 +110,9 @@ export class SmallMarineCreature extends MarineCreature {
 
         const brakingDistance = 3; // slow down on approach
         const targetSpeed = this.wanderSpeed * THREE.MathUtils.clamp(distance / brakingDistance, 0.25, 1);
-        this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, targetSpeed, Math.min(1, deltaTime * 1.5));
+        this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, targetSpeed, Math.min(1, dt * 1.5));
 
-        this.model.position.addScaledVector(toTarget, this.currentSpeed * deltaTime);
+        this.model.position.addScaledVector(toTarget, this.currentSpeed * dt);
 
         const lookMatrix = new THREE.Matrix4().lookAt(
             this.model.position,
@@ -121,7 +123,7 @@ export class SmallMarineCreature extends MarineCreature {
         if (this.forwardOffset) {
             targetQuat.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.forwardOffset));
         }
-        this.model.quaternion.slerp(targetQuat, Math.min(1, deltaTime * 2));
+        this.model.quaternion.slerp(targetQuat, Math.min(1, dt * 2));
 
         return THREE.MathUtils.clamp(this.currentSpeed / this.wanderSpeed, 0, 1);
     }
