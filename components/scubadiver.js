@@ -253,15 +253,17 @@ export class ScubaDiver {
         const result = desiredPosition.clone();
         const visited = this.#creatureCollisionDebug ? new Set() : null;
 
+        this.scene.updateMatrixWorld(true); // Forces one full-scene refresh
+
         this.scene.traverse((object) => {
             if (!object.userData?.canCollide || object.userData?.isScenery || !(object.isMesh || object.isSkinnedMesh)) return;
 
-            object.updateMatrixWorld(true);
             const box = new THREE.Box3().setFromObject(object);
             const boxCenter = box.getCenter(new THREE.Vector3());
             const boxHalfSize = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
-            const min = boxCenter.clone().sub(boxHalfSize).sub(this.collisionOffset);
-            const max = boxCenter.clone().add(boxHalfSize).add(this.collisionOffset);
+            const padding = object.userData?.collisionPadding ?? this.collisionOffset;
+            const min = boxCenter.clone().sub(boxHalfSize).sub(padding);
+            const max = boxCenter.clone().add(boxHalfSize).add(padding);
 
             if (this.#creatureCollisionDebug) {
                 visited.add(object);

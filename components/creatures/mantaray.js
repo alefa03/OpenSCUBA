@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { LargeMarineCreature } from "../marinecreature";
 
@@ -17,6 +18,7 @@ export class MantaRay extends LargeMarineCreature {
         this.subWingAmplitude = options.subWingAmplitude ?? this.wingAmplitude * 1.45;
         this.subWingDelay = options.subWingDelay ?? 0.7;
         this.wingSpread = options.wingSpread ?? 0.2;
+        this.collisionPadding = options.collisionPadding ?? new THREE.Vector3(0.15, 2.0, 0.15);
 
         this.swimTime = 0;
 

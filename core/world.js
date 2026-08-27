@@ -510,7 +510,6 @@ export class World {
         this.compass.update();
         this.depthGauge.update();
         resolveEnvironmentCollisions(this.camera, this.seabed.mesh, this.water.waterLevel,  this.scubadiver.localOffset);
-        this.scubadiver.update(delta);
         this.angelfishes.update(delta, this.camera);
         this.angelfishes2.update(delta, this.camera);
         this.angelfishes3.update(delta, this.camera);
@@ -520,6 +519,7 @@ export class World {
         this.whaleshark.update(delta);
         this.mantaray.update(delta);
         this.killerwhale.update(delta);
+        this.scubadiver.update(delta);
 
         this.ambientLight.intensity = THREE.MathUtils.lerp(0.2, 1.0, daylightFactor);
         this.wreck.setLightLevel(daylightFactor); // fades the tuned emissive tint in with daylight

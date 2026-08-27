@@ -24,6 +24,7 @@ export class MarineCreature {
         this.scale = options.scale ?? 1.0;
         this.forwardOffset = options.forwardOffset ?? 0;
         this.canCollide = options.canCollide ?? false;
+        this.collisionPadding = options.collisionPadding ?? null; // null = fall back to the diver's default padding
 
         this.elapsed = Math.random() * 10; // randomization is used to de-syncronize motions between multiple sub-class instances
         this.swimBlend = 0;
@@ -46,9 +47,11 @@ export class MarineCreature {
         if (!this.model) return;
 
         this.model.userData.canCollide = this.canCollide;
+        this.model.userData.collisionPadding = this.collisionPadding;
         this.model.traverse((obj) => {
             if (obj.isObject3D) {
                 obj.userData.canCollide = this.canCollide;
+                obj.userData.collisionPadding = this.collisionPadding;
             }
         });
     }

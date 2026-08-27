@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { LargeMarineCreature } from "../marinecreature";
 
@@ -35,6 +36,8 @@ export class KillerWhale extends LargeMarineCreature {
 
 		this.swimSpeed = options.swimSpeed ?? 2.0;
 		this.tailAmplitude = options.tailAmplitude ?? 0.28;
+		this.collisionPadding = options.collisionPadding ?? new THREE.Vector3(0.5, 1.2, 0.5);
+		
 		this.swimTime = 0;
 
 		this.init();
