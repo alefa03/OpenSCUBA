@@ -1,5 +1,5 @@
 {
-  "name": "final-project-astrographics_industries",
+  "name": "OpenSCUBA",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
